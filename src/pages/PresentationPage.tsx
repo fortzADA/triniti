@@ -230,7 +230,13 @@ export function PresentationPage() {
             {t.modelTitle}
           </h2>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[var(--color-text-muted)]">
-            {t.modelBody}
+            {t.modelBody}{' '}
+            <Link
+              to={enterTo}
+              className="font-semibold text-[var(--color-accent)] underline decoration-[var(--color-accent)]/40 underline-offset-4 transition hover:text-[var(--color-gold,#d4af37)] hover:decoration-[var(--color-gold,#d4af37)]"
+            >
+              {t.learnMore}
+            </Link>
           </p>
         </div>
       </section>
