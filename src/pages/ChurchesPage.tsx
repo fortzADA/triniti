@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { TrinityLogo } from '@/components/TrinityLogo'
@@ -10,6 +10,38 @@ const ChurchGlobe = lazy(() =>
   import('@/components/ChurchGlobe').then((m) => ({ default: m.ChurchGlobe })),
 )
 
+function scorePinMatch(pin: GlobeChurchPin, q: string): number {
+  const city = pin.city.toLowerCase()
+  const country = pin.country.toLowerCase()
+  const name = pin.name.toLowerCase()
+  const slug = pin.suggestedSlug.toLowerCase()
+
+  if (city === q || slug === q) return 100
+  if (city.startsWith(q)) return 90
+  if (name.startsWith(q)) return 80
+  if (city.includes(q)) return 70
+  if (name.includes(q)) return 60
+  if (country.startsWith(q) || country.includes(q)) return 40
+  if (slug.includes(q)) return 30
+  return 0
+}
+
+function findBestPin(pins: GlobeChurchPin[], query: string): GlobeChurchPin | null {
+  const q = query.trim().toLowerCase()
+  if (!q) return null
+
+  let best: GlobeChurchPin | null = null
+  let bestScore = 0
+  for (const pin of pins) {
+    const score = scorePinMatch(pin, q)
+    if (score > bestScore) {
+      best = pin
+      bestScore = score
+    }
+  }
+  return bestScore > 0 ? best : null
+}
+
 export function ChurchesPage() {
   const { user } = useAuth()
   const [churches, setChurches] = useState<Church[]>([])
@@ -17,12 +49,14 @@ export function ChurchesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selected, setSelected] = useState<GlobeChurchPin | null>(null)
+  const [searchMiss, setSearchMiss] = useState(false)
+  const [flyKey, setFlyKey] = useState(0)
 
-  const load = useCallback(async (q?: string) => {
+  const load = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      setChurches(await listPublicChurches(q))
+      setChurches(await listPublicChurches())
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load churches')
     } finally {
@@ -36,20 +70,40 @@ export function ChurchesPage() {
 
   const pins = useMemo(() => buildGlobePins(churches), [churches])
 
-  const filteredPins = useMemo(() => {
-    const q = search.trim().toLowerCase()
-    if (!q) return pins
-    return pins.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.city.toLowerCase().includes(q) ||
-        p.country.toLowerCase().includes(q),
-    )
-  }, [pins, search])
+  /** Debounced search → select best pin so the globe spins there. */
+  useEffect(() => {
+    const q = search.trim()
+    if (!q) {
+      setSearchMiss(false)
+      return
+    }
 
-  const authSignupTo = selected
-    ? `/auth`
-    : '/auth'
+    const t = window.setTimeout(() => {
+      const match = findBestPin(pins, q)
+      if (match) {
+        setSearchMiss(false)
+        setSelected((prev) => (prev?.id === match.id ? prev : match))
+      } else {
+        setSearchMiss(true)
+      }
+    }, 280)
+
+    return () => window.clearTimeout(t)
+  }, [search, pins])
+
+  function goToSearch(e?: FormEvent) {
+    e?.preventDefault()
+    const match = findBestPin(pins, search)
+    if (match) {
+      setSearchMiss(false)
+      setSelected(match)
+      setFlyKey((k) => k + 1)
+    } else if (search.trim()) {
+      setSearchMiss(true)
+    }
+  }
+
+  const authSignupTo = '/auth'
   const authState = selected
     ? {
         from: {
@@ -107,22 +161,27 @@ export function ChurchesPage() {
           Spin the globe, tap a pin to zoom in, then sign up to join that parish community on Trinity.
         </p>
 
-        <div className="mt-5 flex flex-wrap gap-2">
+        <form className="mt-5 flex flex-wrap gap-2" onSubmit={goToSearch}>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Filter pins by city or name"
+            placeholder="Search a city or parish — globe spins there"
             className="min-w-[220px] flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 outline-none focus:border-[var(--color-accent)]"
+            autoComplete="off"
           />
           <button
-            type="button"
-            onClick={() => void load(search)}
+            type="submit"
             className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm"
           >
-            Refresh
+            Go
           </button>
-        </div>
+        </form>
 
+        {searchMiss && (
+          <p className="mt-2 text-sm text-[var(--color-text-muted)]">
+            No pin matches “{search.trim()}”. Try a city like London, Paris, or Cluj.
+          </p>
+        )}
         {error && <p className="mt-3 text-sm text-[var(--color-danger)]">{error}</p>}
 
         <div className="relative mt-6 grid gap-4 lg:grid-cols-[1fr_320px]">
@@ -135,8 +194,9 @@ export function ChurchesPage() {
               }
             >
               <ChurchGlobe
-                pins={filteredPins}
+                pins={pins}
                 selectedId={selected?.id ?? null}
+                flyKey={flyKey}
                 onSelect={setSelected}
               />
             </Suspense>
@@ -239,7 +299,7 @@ export function ChurchesPage() {
                   <li>Sign up to join — or open a live portal if it already exists.</li>
                 </ol>
                 <p className="mt-5 text-xs text-[var(--color-text-muted)]">
-                  {loading ? 'Syncing live churches…' : `${filteredPins.length} pins on the map`}
+                  {loading ? 'Syncing live churches…' : `${pins.length} pins on the map`}
                 </p>
               </div>
             )}

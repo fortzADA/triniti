@@ -5,6 +5,8 @@ import type { GlobeChurchPin } from '@/data/romanianChurches'
 type Props = {
   pins: GlobeChurchPin[]
   selectedId: string | null
+  /** Bumps when search should re-fly even to the same pin */
+  flyKey?: number
   onSelect: (pin: GlobeChurchPin) => void
   onReady?: () => void
 }
@@ -16,7 +18,7 @@ const BUMP_TEXTURE =
 const NIGHT_SKY =
   'https://cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png'
 
-export function ChurchGlobe({ pins, selectedId, onSelect, onReady }: Props) {
+export function ChurchGlobe({ pins, selectedId, flyKey = 0, onSelect, onReady }: Props) {
   const globeRef = useRef<GlobeMethods | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement>(null)
   const [dims, setDims] = useState({ w: 800, h: 600 })
@@ -68,7 +70,7 @@ export function ChurchGlobe({ pins, selectedId, onSelect, onReady }: Props) {
     }, 8000)
 
     return () => window.clearTimeout(resume)
-  }, [selectedId, pins])
+  }, [selectedId, pins, flyKey])
 
   const pointsData = useMemo(
     () =>
