@@ -5,12 +5,26 @@ import { TrinityLogo } from '@/components/TrinityLogo'
 import { signInWithEmail, signInWithOAuth, signUpWithEmail } from '@/services/auth'
 import { isSupabaseConfigured } from '@/lib/supabase'
 
+type ChurchHint = {
+  name: string
+  city: string
+  country: string
+  suggestedSlug: string
+}
+
+type AuthLocationState = {
+  from?: { pathname: string }
+  churchHint?: ChurchHint
+}
+
 export function AuthPage() {
   const { user, loading } = useAuth()
   const location = useLocation()
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/feed'
+  const locState = (location.state as AuthLocationState | null) || {}
+  const from = locState.from?.pathname || '/churches'
+  const churchHint = locState.churchHint
 
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin')
+  const [mode, setMode] = useState<'signin' | 'signup'>(churchHint ? 'signup' : 'signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
@@ -20,7 +34,13 @@ export function AuthPage() {
   const [message, setMessage] = useState('')
 
   if (!loading && user) {
-    return <Navigate to={from} replace />
+    return (
+      <Navigate
+        to={from}
+        replace
+        state={churchHint ? { churchHint } : undefined}
+      />
+    )
   }
 
   if (!isSupabaseConfigured) {
@@ -80,6 +100,11 @@ export function AuthPage() {
         <p className="mt-3 text-[var(--color-text-muted)]">
           Connect with groups, share posts, and message your community.
         </p>
+        {churchHint && (
+          <p className="mt-3 rounded-lg border border-[var(--color-gold)]/40 bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-gold)]">
+            Signing up for {churchHint.name} — {churchHint.city}, {churchHint.country}
+          </p>
+        )}
       </div>
 
       <form onSubmit={onSubmit} className="flex flex-col gap-3">

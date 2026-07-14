@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { useChurch } from '@/contexts/ChurchContext'
 import { Avatar } from '@/components/Avatar'
 import {
   fetchConversations,
@@ -14,6 +15,7 @@ import type { Conversation, Message } from '@/lib/types'
 
 export function MessagesPage() {
   const { user, profile } = useAuth()
+  const { churchPath } = useChurch()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
   const [username, setUsername] = useState('')
@@ -43,7 +45,7 @@ export function MessagesPage() {
       if (!other) throw new Error('User not found')
       if (other.id === user.id) throw new Error('Cannot message yourself')
       const id = await getOrCreateDirectConversation(user.id, other.id)
-      navigate(`/messages/${id}`)
+      navigate(churchPath(`messages/${id}`))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not start chat')
     }
@@ -109,6 +111,7 @@ export function MessagesPage() {
 export function ConversationPage() {
   const { id } = useParams()
   const { user, profile } = useAuth()
+  const { churchPath } = useChurch()
   const [messages, setMessages] = useState<Message[]>([])
   const [body, setBody] = useState('')
   const [loading, setLoading] = useState(true)
@@ -152,7 +155,7 @@ export function ConversationPage() {
   return (
     <div className="flex h-full flex-col">
       <header className="border-b border-[var(--color-border)] px-4 py-3">
-        <Link to="/messages" className="text-sm text-[var(--color-accent)]">
+        <Link to={churchPath("messages")} className="text-sm text-[var(--color-accent)]">
           ← Messages
         </Link>
       </header>

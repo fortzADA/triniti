@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { useChurch } from '@/contexts/ChurchContext'
 import { Avatar } from '@/components/Avatar'
 import { PostCard } from '@/components/PostCard'
 import {
@@ -10,11 +11,14 @@ import {
   uploadAvatar,
 } from '@/services/auth'
 import { fetchPostsByAuthor } from '@/services/posts'
+import { listMyMemberships } from '@/services/churches'
 import { getOrCreateDirectConversation } from '@/services/messages'
-import type { Post, Profile } from '@/lib/types'
+import type { ChurchMember, Post, Profile } from '@/lib/types'
 
 export function ProfilePage() {
   const { profile, user, refreshProfile, setProfile } = useAuth()
+  const { church, churchPath } = useChurch()
+  const [memberships, setMemberships] = useState<ChurchMember[]>([])
   const [editing, setEditing] = useState(false)
   const [displayName, setDisplayName] = useState(profile?.display_name || '')
   const [bio, setBio] = useState(profile?.bio || '')
@@ -31,7 +35,12 @@ export function ProfilePage() {
 
   const loadPosts = useCallback(async () => {
     if (!user) return
-    setPosts(await fetchPostsByAuthor(user.id, user.id))
+    setPosts(await fetchPostsByAuthor(user.id, user.id, church.id))
+  }, [user, church.id])
+
+  useEffect(() => {
+    if (!user) return
+    void listMyMemberships(user.id).then(setMemberships)
   }, [user])
 
   useEffect(() => {
@@ -153,13 +162,52 @@ export function ProfilePage() {
           </form>
         )}
         {error && <p className="mt-2 text-sm text-[var(--color-danger)]">{error}</p>}
+
+        <div className="mt-6 border-t border-[var(--color-border)] pt-4">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">
+            Your churches
+          </h3>
+          <ul className="mt-3 space-y-2">
+            {memberships
+              .filter((m) => m.status === 'active' && m.church)
+              .map((m) => (
+                <li key={m.church_id}>
+                  <Link
+                    to={`/c/${m.church!.slug}/feed`}
+                    className={`block rounded-lg border px-3 py-2 text-sm ${
+                      m.church_id === church.id
+                        ? 'border-[var(--color-accent)] text-[var(--color-accent)]'
+                        : 'border-[var(--color-border)] text-[var(--color-text)]'
+                    }`}
+                  >
+                    {m.church!.name}
+                    <span className="ml-2 text-xs text-[var(--color-text-muted)]">{m.role}</span>
+                  </Link>
+                </li>
+              ))}
+          </ul>
+          <div className="mt-3 flex flex-wrap gap-3 text-sm">
+            <Link to="/churches" className="text-[var(--color-accent)]">
+              Find churches
+            </Link>
+            <Link to="/churches/new" className="text-[var(--color-accent)]">
+              Create a church
+            </Link>
+          </div>
+        </div>
       </div>
 
       <h3 className="border-t border-[var(--color-border)] px-4 py-3 text-sm font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">
         Your posts
       </h3>
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} onChanged={loadPosts} />
+        <PostCard
+          key={post.id}
+          post={post}
+          onChanged={loadPosts}
+          postHref={churchPath(`post/${post.id}`)}
+          authorHref={post.author ? churchPath(`u/${post.author.username}`) : undefined}
+        />
       ))}
       {!posts.length && (
         <p className="px-4 py-6 text-center text-[var(--color-text-muted)]">No posts yet.</p>
@@ -171,6 +219,7 @@ export function ProfilePage() {
 export function UserProfilePage() {
   const { username } = useParams()
   const { user } = useAuth()
+  const { church, churchPath } = useChurch()
   const navigate = useNavigate()
   const [profile, setLocalProfile] = useState<Profile | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
@@ -182,13 +231,13 @@ export function UserProfilePage() {
       try {
         const p = await getProfileByUsername(username)
         setLocalProfile(p)
-        if (p) setPosts(await fetchPostsByAuthor(p.id, user?.id))
+        if (p) setPosts(await fetchPostsByAuthor(p.id, user?.id, church.id))
       } finally {
         setLoading(false)
       }
     }
     void load()
-  }, [username, user?.id])
+  }, [username, user?.id, church.id])
 
   if (loading) {
     return <p className="px-4 py-8 text-center text-[var(--color-text-muted)]">Loading…</p>
@@ -203,7 +252,7 @@ export function UserProfilePage() {
   return (
     <div>
       <header className="border-b border-[var(--color-border)] px-4 py-3">
-        <Link to="/feed" className="text-sm text-[var(--color-accent)]">
+        <Link to={churchPath("feed")} className="text-sm text-[var(--color-accent)]">
           ← Feed
         </Link>
       </header>
@@ -214,7 +263,7 @@ export function UserProfilePage() {
           <p className="text-[var(--color-text-muted)]">@{profile.username}</p>
           {profile.bio && <p className="mt-2 text-sm">{profile.bio}</p>}
           {isSelf ? (
-            <Link to="/profile" className="mt-3 inline-block text-sm text-[var(--color-accent)]">
+            <Link to={churchPath("profile")} className="mt-3 inline-block text-sm text-[var(--color-accent)]">
               Edit your profile
             </Link>
           ) : (
@@ -224,7 +273,7 @@ export function UserProfilePage() {
               onClick={async () => {
                 if (!user) return
                 const conversationId = await getOrCreateDirectConversation(user.id, profile.id)
-                navigate(`/messages/${conversationId}`)
+                navigate(churchPath(`messages/${conversationId}`))
               }}
             >
               Message
@@ -233,7 +282,12 @@ export function UserProfilePage() {
         </div>
       </div>
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
+        <PostCard
+          key={post.id}
+          post={post}
+          postHref={churchPath(`post/${post.id}`)}
+          authorHref={post.author ? churchPath(`u/${post.author.username}`) : undefined}
+        />
       ))}
       {!posts.length && (
         <p className="px-4 py-6 text-center text-[var(--color-text-muted)]">No posts yet.</p>

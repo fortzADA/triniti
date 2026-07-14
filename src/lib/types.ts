@@ -7,9 +7,45 @@ export type Profile = {
   created_at: string
 }
 
+export type Church = {
+  id: string
+  name: string
+  slug: string
+  tagline: string | null
+  description: string | null
+  logo_url: string | null
+  cover_url: string | null
+  city: string | null
+  country: string | null
+  latitude?: number | null
+  longitude?: number | null
+  website: string | null
+  email: string | null
+  phone: string | null
+  created_by: string
+  is_public: boolean
+  created_at: string
+  member_count?: number
+  my_membership?: ChurchMember | null
+}
+
+export type ChurchMemberRole = 'owner' | 'admin' | 'member'
+export type ChurchMemberStatus = 'pending' | 'active'
+
+export type ChurchMember = {
+  church_id: string
+  user_id: string
+  role: ChurchMemberRole
+  status: ChurchMemberStatus
+  created_at: string
+  profile?: Profile
+  church?: Church
+}
+
 export type Post = {
   id: string
   author_id: string
+  church_id: string | null
   group_id: string | null
   body: string
   media_url: string | null
@@ -32,6 +68,7 @@ export type Comment = {
 
 export type Group = {
   id: string
+  church_id: string | null
   name: string
   slug: string
   description: string | null

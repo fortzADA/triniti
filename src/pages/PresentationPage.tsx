@@ -11,7 +11,7 @@ import {
 
 export function PresentationPage() {
   const { user } = useAuth()
-  const enterTo = user ? '/feed' : '/auth'
+  const enterTo = user ? '/churches' : '/auth'
   const [lang, setLang] = useState<Lang>(() => getStoredLang())
   const [openModal, setOpenModal] = useState<'idea' | 'contrib' | null>(null)
   const modalTitleId = useId()
@@ -100,6 +100,12 @@ export function PresentationPage() {
               className="pres-cta rounded-md bg-[var(--color-accent)] px-5 py-3 font-semibold text-[var(--color-bg)] transition hover:bg-[var(--color-accent-dim)]"
             >
               {user ? t.enterCommunity : t.joinFamily}
+            </Link>
+            <Link
+              to="/churches"
+              className="rounded-md border border-[var(--color-gold,#d4af37)] px-5 py-3 text-[var(--color-gold,#d4af37)] transition hover:bg-[var(--color-gold,#d4af37)]/10"
+            >
+              {t.findChurch}
             </Link>
             <button
               type="button"

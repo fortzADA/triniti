@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import type { Profile } from '@/lib/types'
 
 type Props = {
@@ -14,6 +14,7 @@ const sizes = {
 }
 
 export function Avatar({ profile, size = 'md', link = true }: Props) {
+  const { slug } = useParams<{ slug?: string }>()
   const initials = (profile?.display_name || profile?.username || '?')
     .split(' ')
     .map((p) => p[0])
@@ -36,7 +37,8 @@ export function Avatar({ profile, size = 'md', link = true }: Props) {
   )
 
   if (link && profile?.username) {
-    return <Link to={`/u/${profile.username}`}>{content}</Link>
+    const to = slug ? `/c/${slug}/u/${profile.username}` : `/churches`
+    return <Link to={to}>{content}</Link>
   }
 
   return content

@@ -1,11 +1,11 @@
 import { supabase } from '@/lib/supabase'
 import type { Group } from '@/lib/types'
 
-export async function fetchGroups(userId?: string): Promise<Group[]> {
-  const { data, error } = await supabase
-    .from('groups')
-    .select('*')
-    .order('created_at', { ascending: false })
+export async function fetchGroups(userId?: string, churchId?: string): Promise<Group[]> {
+  let query = supabase.from('groups').select('*').order('created_at', { ascending: false })
+  if (churchId) query = query.eq('church_id', churchId)
+
+  const { data, error } = await query
   if (error) throw error
 
   const groups = (data || []) as Group[]
@@ -31,8 +31,15 @@ export async function fetchGroups(userId?: string): Promise<Group[]> {
   }))
 }
 
-export async function fetchGroupBySlug(slug: string, userId?: string): Promise<Group | null> {
-  const { data, error } = await supabase.from('groups').select('*').eq('slug', slug).maybeSingle()
+export async function fetchGroupBySlug(
+  slug: string,
+  userId?: string,
+  churchId?: string,
+): Promise<Group | null> {
+  let query = supabase.from('groups').select('*').eq('slug', slug)
+  if (churchId) query = query.eq('church_id', churchId)
+
+  const { data, error } = await query.maybeSingle()
   if (error) throw error
   if (!data) return null
 
@@ -52,6 +59,7 @@ export async function createGroup(
   createdBy: string,
   name: string,
   description: string,
+  churchId: string,
 ): Promise<Group> {
   const slug =
     name
@@ -67,6 +75,7 @@ export async function createGroup(
       slug,
       description: description || null,
       created_by: createdBy,
+      church_id: churchId,
     })
     .select()
     .single()

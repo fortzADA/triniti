@@ -1,16 +1,16 @@
-import { NavLink } from 'react-router-dom'
-import { useAuth } from '@/contexts/AuthContext'
+import { NavLink, useParams } from 'react-router-dom'
 
 const tabs = [
-  { to: '/feed', label: 'Feed', icon: '⌂' },
-  { to: '/groups', label: 'Groups', icon: '◎' },
-  { to: '/messages', label: 'Messages', icon: '✉' },
-  { to: '/notifications', label: 'Alerts', icon: '◉' },
-  { to: '/profile', label: 'Profile', icon: '☺' },
+  { path: 'feed', label: 'Feed', icon: '⌂', end: true },
+  { path: 'groups', label: 'Groups', icon: '◎', end: false },
+  { path: 'messages', label: 'Messages', icon: '✉', end: false },
+  { path: 'notifications', label: 'Alerts', icon: '◉', end: false },
+  { path: 'profile', label: 'Profile', icon: '☺', end: false },
 ]
 
 export function TabBar() {
-  const { profile } = useAuth()
+  const { slug } = useParams<{ slug: string }>()
+  const base = slug ? `/c/${slug}` : ''
 
   return (
     <nav
@@ -20,9 +20,9 @@ export function TabBar() {
       <div className="mx-auto flex max-w-lg items-stretch justify-around px-1 pt-1">
         {tabs.map((tab) => (
           <NavLink
-            key={tab.to}
-            to={tab.to === '/profile' && profile ? '/profile' : tab.to}
-            end={tab.to === '/feed'}
+            key={tab.path}
+            to={`${base}/${tab.path}`}
+            end={tab.end}
             className={({ isActive }) =>
               `flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] tracking-wide ${
                 isActive

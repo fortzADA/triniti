@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { useChurch } from '@/contexts/ChurchContext'
 import { ComposeBox } from '@/components/ComposeBox'
 import { PostCard } from '@/components/PostCard'
 import {
@@ -15,6 +16,7 @@ import type { Group, Post } from '@/lib/types'
 
 export function GroupsPage() {
   const { user } = useAuth()
+  const { church, churchPath } = useChurch()
   const [groups, setGroups] = useState<Group[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
@@ -25,13 +27,13 @@ export function GroupsPage() {
   const load = useCallback(async () => {
     if (!user) return
     try {
-      setGroups(await fetchGroups(user.id))
+      setGroups(await fetchGroups(user.id, church.id))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load groups')
     } finally {
       setLoading(false)
     }
-  }, [user])
+  }, [user, church.id])
 
   useEffect(() => {
     void load()
@@ -41,7 +43,7 @@ export function GroupsPage() {
     e.preventDefault()
     if (!user || !name.trim()) return
     try {
-      const group = await createGroup(user.id, name.trim(), description.trim())
+      const group = await createGroup(user.id, name.trim(), description.trim(), church.id)
       setGroups((prev) => [group, ...prev])
       setShowCreate(false)
       setName('')
@@ -97,7 +99,10 @@ export function GroupsPage() {
           <li key={group.id} className="border-b border-[var(--color-border)] px-4 py-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <Link to={`/groups/${group.slug}`} className="font-semibold hover:underline">
+                <Link
+                  to={churchPath(`groups/${group.slug}`)}
+                  className="font-semibold hover:underline"
+                >
                   {group.name}
                 </Link>
                 <p className="mt-1 text-sm text-[var(--color-text-muted)]">
@@ -134,7 +139,7 @@ export function GroupsPage() {
 
       {!loading && !groups.length && (
         <p className="px-4 py-8 text-center text-[var(--color-text-muted)]">
-          No groups yet. Create one to gather your community.
+          No groups yet. Create one to gather your parish community.
         </p>
       )}
     </div>
@@ -142,20 +147,21 @@ export function GroupsPage() {
 }
 
 export function GroupDetailPage() {
-  const { slug } = useParams()
+  const { groupSlug } = useParams()
   const { user } = useAuth()
+  const { church, churchPath } = useChurch()
   const [group, setGroup] = useState<Group | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   const load = useCallback(async () => {
-    if (!slug || !user) return
+    if (!groupSlug || !user) return
     try {
-      const g = await fetchGroupBySlug(slug, user.id)
+      const g = await fetchGroupBySlug(groupSlug, user.id, church.id)
       setGroup(g)
       if (g?.is_member) {
-        setPosts(await fetchFeed(user.id, g.id))
+        setPosts(await fetchFeed(user.id, { churchId: church.id, groupId: g.id }))
       } else {
         setPosts([])
       }
@@ -164,7 +170,7 @@ export function GroupDetailPage() {
     } finally {
       setLoading(false)
     }
-  }, [slug, user])
+  }, [groupSlug, user, church.id])
 
   useEffect(() => {
     void load()
@@ -181,7 +187,7 @@ export function GroupDetailPage() {
   return (
     <div>
       <header className="border-b border-[var(--color-border)] px-4 py-4">
-        <Link to="/groups" className="text-sm text-[var(--color-accent)]">
+        <Link to={churchPath('groups')} className="text-sm text-[var(--color-accent)]">
           ← Groups
         </Link>
         <h1 className="mt-2 text-xl font-bold">{group.name}</h1>
@@ -212,12 +218,24 @@ export function GroupDetailPage() {
             placeholder={`Share with ${group.name}…`}
             onSubmit={async (body) => {
               if (!user) return
-              const post = await createPost(user.id, body, group.id)
+              const post = await createPost(user.id, body, {
+                churchId: church.id,
+                groupId: group.id,
+              })
               setPosts((prev) => [post, ...prev])
             }}
           />
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} onChanged={load} />
+            <PostCard
+              key={post.id}
+              post={post}
+              onChanged={load}
+              postHref={churchPath(`post/${post.id}`)}
+              authorHref={
+                post.author ? churchPath(`u/${post.author.username}`) : undefined
+              }
+              groupHref={churchPath(`groups/${group.slug}`)}
+            />
           ))}
           {!posts.length && (
             <p className="px-4 py-8 text-center text-[var(--color-text-muted)]">

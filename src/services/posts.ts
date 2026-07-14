@@ -43,16 +43,25 @@ async function enrichPosts(posts: Post[], userId?: string): Promise<Post[]> {
   }))
 }
 
-export async function fetchFeed(userId?: string, groupId?: string | null): Promise<Post[]> {
+export async function fetchFeed(
+  userId?: string,
+  options?: { churchId?: string; groupId?: string | null },
+): Promise<Post[]> {
   let query = supabase
     .from('posts')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(50)
 
-  if (groupId) {
-    query = query.eq('group_id', groupId)
-  } else {
+  if (options?.churchId) {
+    query = query.eq('church_id', options.churchId)
+  }
+
+  if (options?.groupId) {
+    query = query.eq('group_id', options.groupId)
+  } else if (!options?.groupId && options?.churchId) {
+    query = query.is('group_id', null)
+  } else if (!options?.churchId) {
     query = query.is('group_id', null)
   }
 
@@ -61,14 +70,22 @@ export async function fetchFeed(userId?: string, groupId?: string | null): Promi
   return enrichPosts((data || []) as Post[], userId)
 }
 
-export async function fetchPostsByAuthor(authorId: string, userId?: string): Promise<Post[]> {
-  const { data, error } = await supabase
+export async function fetchPostsByAuthor(
+  authorId: string,
+  userId?: string,
+  churchId?: string,
+): Promise<Post[]> {
+  let query = supabase
     .from('posts')
     .select('*')
     .eq('author_id', authorId)
     .is('group_id', null)
     .order('created_at', { ascending: false })
     .limit(50)
+
+  if (churchId) query = query.eq('church_id', churchId)
+
+  const { data, error } = await query
   if (error) throw error
   return enrichPosts((data || []) as Post[], userId)
 }
@@ -76,16 +93,16 @@ export async function fetchPostsByAuthor(authorId: string, userId?: string): Pro
 export async function createPost(
   authorId: string,
   body: string,
-  groupId?: string | null,
-  mediaUrl?: string | null,
+  options?: { churchId?: string; groupId?: string | null; mediaUrl?: string | null },
 ): Promise<Post> {
   const { data, error } = await supabase
     .from('posts')
     .insert({
       author_id: authorId,
       body,
-      group_id: groupId || null,
-      media_url: mediaUrl || null,
+      church_id: options?.churchId || null,
+      group_id: options?.groupId || null,
+      media_url: options?.mediaUrl || null,
     })
     .select()
     .single()

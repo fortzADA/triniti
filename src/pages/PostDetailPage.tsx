@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { useChurch } from '@/contexts/ChurchContext'
 import { Avatar } from '@/components/Avatar'
 import { PostCard } from '@/components/PostCard'
 import { supabase } from '@/lib/supabase'
@@ -11,6 +12,7 @@ import { createComment, fetchComments, fetchFeed } from '@/services/posts'
 export function PostDetailPage() {
   const { id } = useParams()
   const { user } = useAuth()
+  const { church, churchPath } = useChurch()
   const [post, setPost] = useState<Post | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
   const [body, setBody] = useState('')
@@ -20,12 +22,12 @@ export function PostDetailPage() {
   const load = useCallback(async () => {
     if (!id || !user) return
     try {
-      const feed = await fetchFeed(user.id)
+      const feed = await fetchFeed(user.id, { churchId: church.id })
       let found = feed.find((p) => p.id === id) || null
 
       if (!found) {
         const { data } = await supabase.from('posts').select('*').eq('id', id).maybeSingle()
-        if (data) {
+        if (data && (data as Post).church_id === church.id) {
           const author = await getProfile(data.author_id)
           const { count: likeCount } = await supabase
             .from('likes')
@@ -56,7 +58,7 @@ export function PostDetailPage() {
     } finally {
       setLoading(false)
     }
-  }, [id, user])
+  }, [id, user, church.id])
 
   useEffect(() => {
     void load()
@@ -86,11 +88,17 @@ export function PostDetailPage() {
   return (
     <div>
       <header className="border-b border-[var(--color-border)] px-4 py-3">
-        <Link to="/feed" className="text-sm text-[var(--color-accent)]">
+        <Link to={churchPath('feed')} className="text-sm text-[var(--color-accent)]">
           ← Feed
         </Link>
       </header>
-      <PostCard post={post} onChanged={load} />
+      <PostCard
+        post={post}
+        onChanged={load}
+        postHref={churchPath(`post/${post.id}`)}
+        authorHref={post.author ? churchPath(`u/${post.author.username}`) : undefined}
+        groupHref={post.group ? churchPath(`groups/${post.group.slug}`) : undefined}
+      />
       <div className="border-t border-[var(--color-border)] px-4 py-3">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">
           Comments

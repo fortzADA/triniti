@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { useChurch } from '@/contexts/ChurchContext'
 import { Avatar } from '@/components/Avatar'
 import {
   fetchNotifications,
@@ -28,14 +29,15 @@ function labelFor(n: Notification) {
   }
 }
 
-function linkFor(n: Notification) {
-  if (n.type === 'message' && n.entity_id) return `/messages/${n.entity_id}`
-  if ((n.type === 'like' || n.type === 'comment') && n.entity_id) return `/post/${n.entity_id}`
-  return '/notifications'
+function linkFor(n: Notification, base: (s?: string) => string) {
+  if (n.type === 'message' && n.entity_id) return base(`messages/${n.entity_id}`)
+  if ((n.type === 'like' || n.type === 'comment') && n.entity_id) return base(`post/${n.entity_id}`)
+  return base('notifications')
 }
 
 export function NotificationsPage() {
   const { user } = useAuth()
+  const { churchPath } = useChurch()
   const [items, setItems] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -86,7 +88,7 @@ export function NotificationsPage() {
         {items.map((n) => (
           <li key={n.id}>
             <Link
-              to={linkFor(n)}
+              to={linkFor(n, churchPath)}
               onClick={async () => {
                 if (!n.read_at) {
                   await markNotificationRead(n.id)

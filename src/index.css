@@ -57,6 +57,14 @@
   animation: pres-fade-up 0.9s ease-out both;
 }
 
+.church-globe canvas {
+  cursor: grab;
+}
+
+.church-globe canvas:active {
+  cursor: grabbing;
+}
+
 .pres-cta {
   animation: pres-cta-glow 2.8s ease-in-out infinite;
 }

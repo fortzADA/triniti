@@ -4,10 +4,13 @@ Social/community platform built with **Vite + React + TypeScript + Tailwind**, p
 
 ## Features
 
+- Public church marketplace: browse and open parish portals
+- Self-serve church creation for priests/admins
+- Public portal pages + private per-church member communities
 - Email/password auth plus Google and Apple OAuth
 - Profiles with avatar upload
-- Public feed: posts, likes, comments
-- Groups/communities with membership and group feeds
+- Church-scoped feed: posts, likes, comments
+- Groups within each church
 - Direct messages with Supabase Realtime
 - In-app notifications (likes, comments, messages)
 
@@ -33,9 +36,13 @@ npm install
 cp .env.example .env
 ```
 
-3. In the Supabase SQL editor, run the migration:
+3. In the Supabase SQL editor, run both migrations in order:
 
 [`supabase/migrations/20260711000000_init.sql`](supabase/migrations/20260711000000_init.sql)
+
+[`supabase/migrations/20260715000000_churches.sql`](supabase/migrations/20260715000000_churches.sql)
+
+[`supabase/migrations/20260716000000_church_coords.sql`](supabase/migrations/20260716000000_church_coords.sql) (optional lat/lng for live globe pins)
 
 4. In Supabase Auth settings, enable Email, and optionally Google / Apple providers. Add your site URL (e.g. `http://localhost:5173`) and Capacitor redirect URLs as needed.
 
@@ -44,6 +51,14 @@ cp .env.example .env
 ```bash
 npm run dev
 ```
+
+Key routes:
+
+- `/` — Trinity presentation
+- `/churches` — marketplace globe (Romanian parish pins + directory)
+- `/churches/new` — create a church portal
+- `/churches/:slug` — public parish portal
+- `/c/:slug/feed` — private church community
 
 ## Capacitor (Android / iOS)
 

@@ -19,6 +19,7 @@ type PresentationCopy = {
   joinFamily: string
   enterCommunity: string
   learnMore: string
+  findChurch: string
   comingSoonLabel: string
   comingSoonAndroid: string
   comingSoonIos: string
@@ -91,6 +92,7 @@ export const presentationCopy: Record<Lang, PresentationCopy> = {
     joinFamily: 'Join the Trinity family',
     enterCommunity: 'Enter community',
     learnMore: 'Learn more',
+    findChurch: 'Find a church',
     comingSoonLabel: 'Mobile apps',
     comingSoonAndroid: 'Android — Coming soon',
     comingSoonIos: 'iOS — Coming soon',
@@ -244,6 +246,7 @@ export const presentationCopy: Record<Lang, PresentationCopy> = {
     joinFamily: 'Alătură-te familiei Trinity',
     enterCommunity: 'Intră în comunitate',
     learnMore: 'Află mai mult',
+    findChurch: 'Găsește o biserică',
     comingSoonLabel: 'Aplicații mobile',
     comingSoonAndroid: 'Android — În curând',
     comingSoonIos: 'iOS — În curând',

@@ -18,13 +18,19 @@ function timeAgo(iso: string) {
 type Props = {
   post: Post
   onChanged?: () => void
+  postHref?: string
+  authorHref?: string
+  groupHref?: string
 }
 
-export function PostCard({ post, onChanged }: Props) {
+export function PostCard({ post, onChanged, postHref, authorHref, groupHref }: Props) {
   const { user } = useAuth()
   const [liked, setLiked] = useState(!!post.liked_by_me)
   const [likeCount, setLikeCount] = useState(post.like_count || 0)
   const [busy, setBusy] = useState(false)
+  const commentPath = postHref || `/post/${post.id}`
+  const profilePath = authorHref || `/u/${post.author?.username}`
+  const groupPath = groupHref || (post.group ? `/groups/${post.group.slug}` : undefined)
 
   async function onLike() {
     if (!user || busy) return
@@ -50,10 +56,7 @@ export function PostCard({ post, onChanged }: Props) {
         <Avatar profile={post.author} />
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2">
-            <Link
-              to={`/u/${post.author?.username}`}
-              className="truncate font-semibold hover:underline"
-            >
+            <Link to={profilePath} className="truncate font-semibold hover:underline">
               {post.author?.display_name || 'Member'}
             </Link>
             <span className="truncate text-sm text-[var(--color-text-muted)]">
@@ -63,11 +66,8 @@ export function PostCard({ post, onChanged }: Props) {
               {timeAgo(post.created_at)}
             </span>
           </div>
-          {post.group && (
-            <Link
-              to={`/groups/${post.group.slug}`}
-              className="text-xs text-[var(--color-accent-dim)] hover:underline"
-            >
+          {post.group && groupPath && (
+            <Link to={groupPath} className="text-xs text-[var(--color-accent-dim)] hover:underline">
               in {post.group.name}
             </Link>
           )}
@@ -89,7 +89,7 @@ export function PostCard({ post, onChanged }: Props) {
             >
               ♥ {likeCount}
             </button>
-            <Link to={`/post/${post.id}`} className="hover:text-[var(--color-text)]">
+            <Link to={commentPath} className="hover:text-[var(--color-text)]">
               💬 {post.comment_count || 0}
             </Link>
           </div>
@@ -98,3 +98,4 @@ export function PostCard({ post, onChanged }: Props) {
     </article>
   )
 }
+
