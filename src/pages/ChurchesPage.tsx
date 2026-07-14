@@ -9,6 +9,9 @@ import type { Church } from '@/lib/types'
 const ChurchGlobe = lazy(() =>
   import('@/components/ChurchGlobe').then((m) => ({ default: m.ChurchGlobe })),
 )
+const ChurchStreetMap = lazy(() =>
+  import('@/components/ChurchStreetMap').then((m) => ({ default: m.ChurchStreetMap })),
+)
 
 function scorePinMatch(pin: GlobeChurchPin, q: string): number {
   const city = pin.city.toLowerCase()
@@ -51,6 +54,7 @@ export function ChurchesPage() {
   const [selected, setSelected] = useState<GlobeChurchPin | null>(null)
   const [searchMiss, setSearchMiss] = useState(false)
   const [flyKey, setFlyKey] = useState(0)
+  const [streetView, setStreetView] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -69,6 +73,10 @@ export function ChurchesPage() {
   }, [load])
 
   const pins = useMemo(() => buildGlobePins(churches), [churches])
+
+  useEffect(() => {
+    setStreetView(false)
+  }, [selected?.id, flyKey])
 
   /** Debounced search → select best pin so the globe spins there. */
   useEffect(() => {
@@ -158,7 +166,7 @@ export function ChurchesPage() {
           Romanian churches worldwide
         </h1>
         <p className="mt-3 max-w-2xl text-[var(--color-text-muted)]">
-          Spin the globe, tap a pin to zoom in, then sign up to join that parish community on Trinity.
+          Spin the globe, tap a pin — it zooms in, then opens a street map pinned to the parish.
         </p>
 
         <form className="mt-5 flex flex-wrap gap-2" onSubmit={goToSearch}>
@@ -185,10 +193,10 @@ export function ChurchesPage() {
         {error && <p className="mt-3 text-sm text-[var(--color-danger)]">{error}</p>}
 
         <div className="relative mt-6 grid gap-4 lg:grid-cols-[1fr_320px]">
-          <div className="relative overflow-hidden border border-[var(--color-border)] bg-[radial-gradient(ellipse_at_center,#0f241c_0%,#070f0c_70%)] shadow-[inset_0_0_80px_rgba(0,0,0,0.45)]">
+          <div className="relative h-[min(70vh,640px)] overflow-hidden border border-[var(--color-border)] bg-[radial-gradient(ellipse_at_center,#0f241c_0%,#070f0c_70%)] shadow-[inset_0_0_80px_rgba(0,0,0,0.45)]">
             <Suspense
               fallback={
-                <div className="flex h-[min(70vh,640px)] items-center justify-center text-[var(--color-text-muted)]">
+                <div className="flex h-full items-center justify-center text-[var(--color-text-muted)]">
                   Loading Earth…
                 </div>
               }
@@ -197,10 +205,32 @@ export function ChurchesPage() {
                 pins={pins}
                 selectedId={selected?.id ?? null}
                 flyKey={flyKey}
-                onSelect={setSelected}
+                onSelect={(pin) => {
+                  setStreetView(false)
+                  setSelected(pin)
+                }}
+                onFlyComplete={() => setStreetView(true)}
               />
+              {selected && (
+                <ChurchStreetMap pin={selected} visible={streetView} />
+              )}
             </Suspense>
-            <div className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-[var(--color-bg)]/75 px-3 py-2 text-xs text-[var(--color-text-muted)] backdrop-blur-sm">
+
+            {streetView && selected && (
+              <button
+                type="button"
+                onClick={() => setStreetView(false)}
+                className="absolute top-3 left-3 z-20 rounded-md border border-[var(--color-gold)] bg-[var(--color-bg)]/90 px-3 py-1.5 text-sm text-[var(--color-gold)] backdrop-blur-sm"
+              >
+                ← Back to Earth
+              </button>
+            )}
+
+            <div
+              className={`pointer-events-none absolute bottom-3 left-3 z-20 rounded-md bg-[var(--color-bg)]/75 px-3 py-2 text-xs text-[var(--color-text-muted)] backdrop-blur-sm transition-opacity ${
+                streetView ? 'opacity-0' : 'opacity-100'
+              }`}
+            >
               <span className="mr-3 inline-flex items-center gap-1.5">
                 <span className="inline-block h-2 w-2 rounded-full bg-[var(--color-gold)]" />
                 Landmark
@@ -210,6 +240,15 @@ export function ChurchesPage() {
                 Live on Trinity
               </span>
             </div>
+
+            {streetView && selected && (
+              <div className="pointer-events-none absolute right-3 bottom-3 z-20 max-w-[min(100%,280px)] rounded-md border border-[var(--color-gold)]/50 bg-[var(--color-bg)]/90 px-3 py-2 text-xs backdrop-blur-sm">
+                <p className="font-semibold text-[var(--color-accent)]">{selected.name}</p>
+                <p className="mt-0.5 text-[var(--color-text-muted)]">
+                  {selected.address || `${selected.city}, ${selected.country}`}
+                </p>
+              </div>
+            )}
           </div>
 
           <aside className="border border-[var(--color-border)] bg-[var(--color-surface)]/90 p-5 lg:sticky lg:top-24 lg:self-start">
@@ -222,14 +261,26 @@ export function ChurchesPage() {
                   {selected.name}
                 </h2>
                 <p className="mt-2 text-sm text-[var(--color-text-muted)]">
-                  {selected.city}, {selected.country}
+                  {selected.address
+                    ? selected.address
+                    : `${selected.city}, ${selected.country}`}
                 </p>
-                {selected.portalSlug ? (
+                {selected.address && (
+                  <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                    {selected.city}, {selected.country}
+                  </p>
+                )}
+                {streetView && (
                   <p className="mt-3 text-sm text-[var(--color-accent)]">
+                    Street map pin at exact parish coordinates.
+                  </p>
+                )}
+                {selected.portalSlug ? (
+                  <p className={`text-sm text-[var(--color-accent)] ${streetView ? 'mt-1' : 'mt-3'}`}>
                     This parish has a Trinity portal.
                   </p>
                 ) : (
-                  <p className="mt-3 text-sm text-[var(--color-text-muted)]">
+                  <p className={`text-sm text-[var(--color-text-muted)] ${streetView ? 'mt-1' : 'mt-3'}`}>
                     Not on Trinity yet — sign up to join, or create a portal for this community.
                   </p>
                 )}
@@ -278,7 +329,10 @@ export function ChurchesPage() {
 
                   <button
                     type="button"
-                    onClick={() => setSelected(null)}
+                    onClick={() => {
+                      setSelected(null)
+                      setStreetView(false)
+                    }}
                     className="mt-1 text-sm text-[var(--color-text-muted)] underline-offset-2 hover:underline"
                   >
                     Clear selection
@@ -294,8 +348,8 @@ export function ChurchesPage() {
                   Tap a pin
                 </h2>
                 <ol className="mt-4 list-decimal space-y-2 pl-5 text-sm text-[var(--color-text-muted)]">
-                  <li>Click a gold pin for a Romanian parish landmark.</li>
-                  <li>The globe zooms to that city.</li>
+                  <li>Click a pin — the globe flies to that parish.</li>
+                  <li>It switches to a street map with a pin on the exact spot.</li>
                   <li>Sign up to join — or open a live portal if it already exists.</li>
                 </ol>
                 <p className="mt-5 text-xs text-[var(--color-text-muted)]">

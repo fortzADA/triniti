@@ -7,6 +7,8 @@ type Props = {
   selectedId: string | null
   /** Bumps when search should re-fly even to the same pin */
   flyKey?: number
+  /** Fired after the camera finishes zooming into a pin */
+  onFlyComplete?: (pin: GlobeChurchPin) => void
   onSelect: (pin: GlobeChurchPin) => void
   onReady?: () => void
 }
@@ -18,11 +20,22 @@ const BUMP_TEXTURE =
 const NIGHT_SKY =
   'https://cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png'
 
-export function ChurchGlobe({ pins, selectedId, flyKey = 0, onSelect, onReady }: Props) {
+const FLY_MS = 2200
+
+export function ChurchGlobe({
+  pins,
+  selectedId,
+  flyKey = 0,
+  onFlyComplete,
+  onSelect,
+  onReady,
+}: Props) {
   const globeRef = useRef<GlobeMethods | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement>(null)
   const [dims, setDims] = useState({ w: 800, h: 600 })
   const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const onFlyCompleteRef = useRef(onFlyComplete)
+  onFlyCompleteRef.current = onFlyComplete
 
   useEffect(() => {
     const el = containerRef.current
@@ -49,7 +62,7 @@ export function ChurchGlobe({ pins, selectedId, flyKey = 0, onSelect, onReady }:
     controls.autoRotate = true
     controls.autoRotateSpeed = 0.45
     controls.enableDamping = true
-    controls.minDistance = 120
+    controls.minDistance = 90
     controls.maxDistance = 500
     globe.pointOfView({ lat: 30, lng: 15, altitude: 2.1 }, 0)
     onReady?.()
@@ -62,14 +75,21 @@ export function ChurchGlobe({ pins, selectedId, flyKey = 0, onSelect, onReady }:
 
     const controls = globe.controls()
     controls.autoRotate = false
-    globe.pointOfView({ lat: pin.lat, lng: pin.lng, altitude: 0.55 }, 1600)
 
-    const resume = window.setTimeout(() => {
-      controls.autoRotate = true
-      controls.autoRotateSpeed = 0.2
-    }, 8000)
+    // Wide approach, then tight zoom toward the parish coordinates
+    globe.pointOfView({ lat: pin.lat, lng: pin.lng, altitude: 1.35 }, FLY_MS * 0.45)
+    const tight = window.setTimeout(() => {
+      globe.pointOfView({ lat: pin.lat, lng: pin.lng, altitude: 0.18 }, FLY_MS * 0.55)
+    }, FLY_MS * 0.45)
 
-    return () => window.clearTimeout(resume)
+    const done = window.setTimeout(() => {
+      onFlyCompleteRef.current?.(pin)
+    }, FLY_MS + 80)
+
+    return () => {
+      window.clearTimeout(tight)
+      window.clearTimeout(done)
+    }
   }, [selectedId, pins, flyKey])
 
   const pointsData = useMemo(
@@ -85,7 +105,7 @@ export function ChurchGlobe({ pins, selectedId, flyKey = 0, onSelect, onReady }:
   return (
     <div
       ref={containerRef}
-      className="church-globe relative h-[min(70vh,640px)] w-full overflow-hidden rounded-none"
+      className="church-globe relative h-full w-full overflow-hidden rounded-none"
     >
       <Globe
         ref={globeRef}
