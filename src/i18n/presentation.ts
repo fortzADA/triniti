@@ -33,8 +33,10 @@ type PresentationCopy = {
   modelEyebrow: string
   modelTitle: string
   modelBody: string
-  modelModalTitle: string
-  modelModalBody: string[]
+  ideaModalTitle: string
+  ideaModalBody: string[]
+  contribModalTitle: string
+  contribModalBody: string[]
   modelModalClose: string
   closeEyebrow: string
   closeTitle: string
@@ -108,8 +110,17 @@ export const presentationCopy: Record<Lang, PresentationCopy> = {
     modelTitle: 'Sustainable ministry through monthly micro-contribution',
     modelBody:
       'Trinity is sustained by the community’s monthly micro-contributions—a shared commitment of care. It is built for spread good—not personal glory: Each gift quietly supports help, compassion, and practical programs so families and neighbors across the diaspora can grow stronger together.',
-    modelModalTitle: 'How monthly micro-contribution works',
-    modelModalBody: [
+    ideaModalTitle: 'The idea of Trinity',
+    ideaModalBody: [
+      'Trinity is a faith-rooted community ministry for Romanian Orthodox people wherever they live in the world. It exists to answer a quiet, widespread need: many families are far from ancestral parishes, carrying the weight of a new land while longing to keep Orthodox faith, Romanian language, and living community close to their children.',
+      'The name Trinity points to the heart of Christian life—unity in love—and to a simple promise: no one in the diaspora should have to walk alone. Trinity builds a living bridge between home and host country, between parish and family, between those who can give help and those who need it.',
+      'That bridge rests on three pillars. Help means compassion in action: emergency aid, pastoral care, support for new immigrants, youth mentorship, and confidential guidance in life’s hardest moments. Connect means belonging: small faith groups, prayer companionship, mentorship across generations, and cultural heritage kept alive. Events means celebration: liturgy and feast days, festivals, learning, youth retreats, and gatherings that renew joy and shared memory.',
+      'Trinity is sustained by the community’s monthly micro-contributions—a shared commitment of care. It is built to spread good, not personal glory. Each gift quietly supports practical programs so families and neighbors across the diaspora can grow stronger together, with dignity and without spectacle.',
+      'Looking ahead, Trinity also includes a digital home—web today, and Android and iOS apps coming soon—so parish news, mutual help, messages, and community life can travel with people wherever they are.',
+      'In short, Trinity is presence, compassion, and celebration made practical: a ministry of shared responsibility, trusting that where two or three are gathered in Christ’s name, He is in the midst of them.',
+    ],
+    contribModalTitle: 'How monthly micro-contribution works',
+    contribModalBody: [
       'A small monthly gift from many people creates steady support for families, parishes, and neighbors who need help.',
       'Contributions are guided by compassion—not recognition—so help reaches people with dignity and care.',
       'Your monthly share helps fund practical aid, pastoral presence, community connection, and events that keep faith and culture alive across the diaspora.',
@@ -252,8 +263,17 @@ export const presentationCopy: Record<Lang, PresentationCopy> = {
     modelTitle: 'Misiune durabilă prin micro-contribuție lunară',
     modelBody:
       'Trinity este susținută de micro-contribuțiile lunare ale comunității—un angajament comun de grijă. Este zidită pentru a răspândi binele, nu pentru slavă personală: Fiecare dar sprijină în tăcere ajutorul, compasiunea și programele practice, ca familiile și vecinii din diasporă să crească împreună mai puternici.',
-    modelModalTitle: 'Cum funcționează micro-contribuția lunară',
-    modelModalBody: [
+    ideaModalTitle: 'Ideea proiectului Trinity',
+    ideaModalBody: [
+      'Trinity este o misiune comunitară înrădăcinată în credință, pentru oamenii ortodocși români oriunde trăiesc în lume. Ea răspunde unei nevoi tăcute și răspândite: multe familii sunt departe de parohiile străbune, purtând greutatea unui pământ nou și dorind să țină aproape de copii credința ortodoxă, limba română și o comunitate vie.',
+      'Numele Trinity arată spre inima vieții creștine—unitatea în iubire—și spre o făgăduință simplă: nimeni din diasporă nu ar trebui să umble singur. Trinity zidește o punte vie între casă și țara gazdă, între parohie și familie, între cei care pot oferi ajutor și cei care au nevoie de el.',
+      'Această punte se sprijină pe trei piloni. Ajutorul înseamnă compasiune în faptă: sprijin de urgență, grijă pastorală, integrarea noilor imigranți, mentorat pentru tineri și îndrumare confidențială în clipele grele. Legăturile înseamnă apartenență: grupuri mici de credință, însoțire în rugăciune, mentorat între generații și moștenire culturală ținută vie. Evenimentele înseamnă sărbătoare: Liturghie și praznice, festivaluri, învățătură, retrageri pentru tineri și întâlniri care reînnoiesc bucuria și memoria comună.',
+      'Trinity este susținută de micro-contribuțiile lunare ale comunității—un angajament comun de grijă. Este zidită pentru a răspândi binele, nu pentru slavă personală. Fiecare dar sprijină în tăcere programe practice, ca familiile și vecinii din diasporă să crească împreună mai puternici, cu demnitate și fără spectacol.',
+      'În viitor, Trinity va avea și o casă digitală—web acum, iar aplicațiile Android și iOS în curând—ca veștile de parohie, ajutorul reciproc, mesajele și viața comunității să călătorească odată cu oamenii, oriunde ar fi.',
+      'Pe scurt, Trinity este prezență, compasiune și sărbătoare făcute practice: o misiune a răspunderii împărtășite, încredințată că unde sunt doi sau trei adunați în numele lui Hristos, El este în mijlocul lor.',
+    ],
+    contribModalTitle: 'Cum funcționează micro-contribuția lunară',
+    contribModalBody: [
       'Un dar lunar mic din partea multora creează sprijin statornic pentru familii, parohii și vecini aflați în nevoie.',
       'Contribuțiile sunt călăuzite de compasiune—nu de recunoaștere—ca ajutorul să ajungă la oameni cu demnitate și grijă.',
       'Partea ta lunară ajută la finanțarea ajutorului practic, a prezenței pastorale, a legăturilor comunitare și a evenimentelor care țin vii credința și cultura în diasporă.',

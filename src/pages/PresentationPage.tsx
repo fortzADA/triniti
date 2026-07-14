@@ -13,9 +13,15 @@ export function PresentationPage() {
   const { user } = useAuth()
   const enterTo = user ? '/feed' : '/auth'
   const [lang, setLang] = useState<Lang>(() => getStoredLang())
-  const [modelOpen, setModelOpen] = useState(false)
-  const modelTitleId = useId()
+  const [openModal, setOpenModal] = useState<'idea' | 'contrib' | null>(null)
+  const modalTitleId = useId()
   const t = presentationCopy[lang]
+  const modalContent =
+    openModal === 'idea'
+      ? { title: t.ideaModalTitle, body: t.ideaModalBody, wide: true }
+      : openModal === 'contrib'
+        ? { title: t.contribModalTitle, body: t.contribModalBody, wide: false }
+        : null
 
   function toggleLang() {
     const next: Lang = lang === 'en' ? 'ro' : 'en'
@@ -25,18 +31,18 @@ export function PresentationPage() {
   }
 
   useEffect(() => {
-    if (!modelOpen) return
+    if (!openModal) return
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setModelOpen(false)
+      if (e.key === 'Escape') setOpenModal(null)
     }
     window.addEventListener('keydown', onKey)
     return () => {
       document.body.style.overflow = prev
       window.removeEventListener('keydown', onKey)
     }
-  }, [modelOpen])
+  }, [openModal])
 
   return (
     <div
@@ -95,12 +101,13 @@ export function PresentationPage() {
             >
               {user ? t.enterCommunity : t.joinFamily}
             </Link>
-            <a
-              href="#need"
+            <button
+              type="button"
+              onClick={() => setOpenModal('idea')}
               className="rounded-md border border-[var(--color-border)] px-5 py-3 text-[var(--color-text-muted)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-text)]"
             >
               {t.learnMore}
-            </a>
+            </button>
           </div>
           <div className="mt-8">
             <p className="pres-eyebrow text-[11px] font-semibold tracking-[0.18em] text-[var(--color-gold,#d4af37)] uppercase">
@@ -249,7 +256,7 @@ export function PresentationPage() {
             {t.modelBody}{' '}
             <button
               type="button"
-              onClick={() => setModelOpen(true)}
+              onClick={() => setOpenModal('contrib')}
               className="font-semibold text-[var(--color-accent)] underline decoration-[var(--color-accent)]/40 underline-offset-4 transition hover:text-[var(--color-gold,#d4af37)] hover:decoration-[var(--color-gold,#d4af37)]"
             >
               {t.learnMore}
@@ -258,41 +265,45 @@ export function PresentationPage() {
         </div>
       </section>
 
-      {modelOpen ? (
+      {modalContent ? (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center"
           role="presentation"
-          onClick={() => setModelOpen(false)}
+          onClick={() => setOpenModal(null)}
         >
           <div
             role="dialog"
             aria-modal="true"
-            aria-labelledby={modelTitleId}
-            className="max-h-[85svh] w-full max-w-lg overflow-y-auto border border-[var(--color-border)] border-t-2 border-t-[var(--color-gold,#d4af37)] bg-[var(--color-bg)] p-6 shadow-2xl sm:p-8"
+            aria-labelledby={modalTitleId}
+            className={`max-h-[85svh] w-full overflow-y-auto border border-[var(--color-border)] border-t-2 border-t-[var(--color-gold,#d4af37)] bg-[var(--color-bg)] p-6 shadow-2xl sm:p-8 ${
+              modalContent.wide ? 'max-w-2xl' : 'max-w-lg'
+            }`}
             onClick={(e) => e.stopPropagation()}
           >
             <h3
-              id={modelTitleId}
+              id={modalTitleId}
               className="pres-display text-3xl text-[var(--color-accent)]"
             >
-              {t.modelModalTitle}
+              {modalContent.title}
             </h3>
             <div className="mt-5 space-y-4 text-base leading-relaxed text-[var(--color-text-muted)]">
-              {t.modelModalBody.map((paragraph) => (
+              {modalContent.body.map((paragraph) => (
                 <p key={paragraph}>{paragraph}</p>
               ))}
             </div>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                to={enterTo}
-                className="rounded-md bg-[var(--color-accent)] px-5 py-2.5 font-semibold text-[var(--color-bg)] transition hover:bg-[var(--color-accent-dim)]"
-                onClick={() => setModelOpen(false)}
-              >
-                {t.monthlyHelp}
-              </Link>
+              {openModal === 'contrib' ? (
+                <Link
+                  to={enterTo}
+                  className="rounded-md bg-[var(--color-accent)] px-5 py-2.5 font-semibold text-[var(--color-bg)] transition hover:bg-[var(--color-accent-dim)]"
+                  onClick={() => setOpenModal(null)}
+                >
+                  {t.monthlyHelp}
+                </Link>
+              ) : null}
               <button
                 type="button"
-                onClick={() => setModelOpen(false)}
+                onClick={() => setOpenModal(null)}
                 className="rounded-md border border-[var(--color-border)] px-5 py-2.5 text-[var(--color-text-muted)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-text)]"
               >
                 {t.modelModalClose}
