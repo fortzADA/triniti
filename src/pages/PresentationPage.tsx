@@ -86,6 +86,33 @@ export function PresentationPage() {
               {t.learnMore}
             </a>
           </div>
+          <div className="mt-8">
+            <p className="pres-eyebrow text-[11px] font-semibold tracking-[0.18em] text-[var(--color-gold,#d4af37)] uppercase">
+              {t.comingSoonLabel}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              <span className="inline-flex items-center gap-2.5 border border-[var(--color-border)] bg-[var(--color-bg)]/40 px-4 py-2 text-sm text-[var(--color-text-muted)] backdrop-blur-sm">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 shrink-0 fill-[var(--color-accent)]"
+                  aria-hidden
+                >
+                  <path d="M17.6 9.48l1.84-3.18a.5.5 0 10-.87-.5l-1.86 3.22A11.4 11.4 0 0012 8c-1.6 0-3.1.33-4.71 1.02L5.43 5.8a.5.5 0 10-.87.5L6.4 9.48C3.53 11.1 1.65 14.05 1.5 17.5h21c-.15-3.45-2.03-6.4-4.9-8.02zM7.75 15.25a1.25 1.25 0 110-2.5 1.25 1.25 0 010 2.5zm8.5 0a1.25 1.25 0 110-2.5 1.25 1.25 0 010 2.5z" />
+                </svg>
+                {t.comingSoonAndroid}
+              </span>
+              <span className="inline-flex items-center gap-2.5 border border-[var(--color-border)] bg-[var(--color-bg)]/40 px-4 py-2 text-sm text-[var(--color-text-muted)] backdrop-blur-sm">
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 shrink-0 fill-[var(--color-accent)]"
+                  aria-hidden
+                >
+                  <path d="M16.37 12.79c.03-2.45 2-3.63 2.09-3.69-1.14-1.66-2.91-1.89-3.54-1.91-1.5-.15-2.94.89-3.7.89-.77 0-1.95-.87-3.21-.84-1.65.02-3.17.96-4.02 2.44-1.71 2.97-.44 7.37 1.23 9.78.82 1.18 1.79 2.5 3.07 2.45 1.23-.05 1.7-.8 3.19-.8 1.49 0 1.91.8 3.21.77 1.33-.02 2.17-1.2 2.98-2.39.94-1.37 1.33-2.7 1.35-2.77-.03-.01-2.59-.99-2.62-3.93zM14.1 5.45c.68-.82 1.13-1.96 1.01-3.1-1.04.04-2.26.65-2.99 1.47-.66.73-1.23 1.9-1.08 3.02 1.11.09 2.25-.56 3.06-1.39z" />
+                </svg>
+                {t.comingSoonIos}
+              </span>
+            </div>
+          </div>
           <p className="mt-8 max-w-md text-sm text-[var(--color-text-muted)]">{t.endorsedBy}</p>
         </div>
       </section>

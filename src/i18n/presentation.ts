@@ -19,6 +19,9 @@ type PresentationCopy = {
   joinFamily: string
   enterCommunity: string
   learnMore: string
+  comingSoonLabel: string
+  comingSoonAndroid: string
+  comingSoonIos: string
   endorsedBy: string
   needEyebrow: string
   needTitle: string
@@ -83,6 +86,9 @@ export const presentationCopy: Record<Lang, PresentationCopy> = {
     joinFamily: 'Join the Trinity family',
     enterCommunity: 'Enter community',
     learnMore: 'Learn more',
+    comingSoonLabel: 'Mobile apps',
+    comingSoonAndroid: 'Android — Coming soon',
+    comingSoonIos: 'iOS — Coming soon',
     endorsedBy:
       'Endorsed by the Romanian Consulate in Los Angeles & the Romanian Patriarchate',
     needEyebrow: 'The need',
@@ -216,6 +222,9 @@ export const presentationCopy: Record<Lang, PresentationCopy> = {
     joinFamily: 'Alătură-te familiei Trinity',
     enterCommunity: 'Intră în comunitate',
     learnMore: 'Află mai mult',
+    comingSoonLabel: 'Aplicații mobile',
+    comingSoonAndroid: 'Android — În curând',
+    comingSoonIos: 'iOS — În curând',
     endorsedBy:
       'Susținută de Consulatul României din Los Angeles și de Patriarhia Română',
     needEyebrow: 'Nevoia',
