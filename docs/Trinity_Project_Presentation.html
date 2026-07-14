@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trinity — Project Presentation</title>
+  <style>
+    :root {
+      --bg: #0c1a14;
+      --surface: #132820;
+      --raised: #1a3429;
+      --accent: #3dd68c;
+      --gold: #d4af37;
+      --text: #e8f0eb;
+      --muted: #8fa89a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #000; color: var(--text); font-family: Calibri, "Segoe UI", system-ui, sans-serif; }
+    .deck { height: 100%; }
+    .slide {
+      display: none;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      border-left: 6px solid var(--gold);
+      padding: 3.5vh 4vw 9vh;
+      background-size: cover;
+      background-position: center;
+    }
+    .slide.bg-1 { background-image: linear-gradient(rgba(12,26,20,0.55), rgba(12,26,20,0.62)), url('./assets/ppt-bg-01-title.png'); }
+    .slide.bg-2 { background-image: linear-gradient(rgba(12,26,20,0.70), rgba(12,26,20,0.76)), url('./assets/ppt-bg-02-need.png'); }
+    .slide.bg-3 { background-image: linear-gradient(rgba(12,26,20,0.72), rgba(12,26,20,0.78)), url('./assets/ppt-bg-03-mission.png'); }
+    .slide.bg-4 { background-image: linear-gradient(rgba(12,26,20,0.70), rgba(12,26,20,0.76)), url('./assets/ppt-bg-04-offers.png'); }
+    .slide.bg-5 { background-image: linear-gradient(rgba(12,26,20,0.70), rgba(12,26,20,0.76)), url('./assets/ppt-bg-05-partners.png'); }
+    .slide.bg-6 { background-image: linear-gradient(rgba(12,26,20,0.70), rgba(12,26,20,0.76)), url('./assets/ppt-bg-06-tech.png'); }
+    .slide.bg-7 { background-image: linear-gradient(rgba(12,26,20,0.70), rgba(12,26,20,0.76)), url('./assets/ppt-bg-07-roadmap.png'); }
+    .slide.bg-8 { background-image: linear-gradient(rgba(12,26,20,0.58), rgba(12,26,20,0.68)), url('./assets/ppt-bg-08-close.png'); }
+    .slide.active { display: block; }
+    .slide.title-slide {
+      display: none;
+      padding: 0;
+      border-left: 6px solid var(--gold);
+    }
+    .slide.title-slide.active { display: grid; grid-template-columns: 1.05fr 1fr; }
+    .title-copy {
+      padding: 8vh 4vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: linear-gradient(90deg, rgba(12,26,20,0.88) 0%, rgba(12,26,20,0.72) 70%, rgba(12,26,20,0.15) 100%);
+      z-index: 1;
+    }
+    .title-visual {
+      background: url('./assets/ppt-bg-01-title.png') center/cover no-repeat;
+      min-height: 100%;
+    }
+    .eyebrow { color: var(--gold); font-size: 0.85rem; font-weight: 700; letter-spacing: 0.12em; margin: 1rem 0 0.6rem; }
+    h1 { color: var(--accent); font-size: clamp(2.4rem, 5vw, 3.8rem); line-height: 1.05; }
+    h2 { color: var(--accent); font-size: clamp(1.6rem, 3vw, 2.2rem); margin-bottom: 0.35rem; }
+    .subtitle { color: var(--gold); font-size: 0.95rem; margin-bottom: 1.4rem; }
+    .lead { font-size: clamp(1rem, 1.8vw, 1.25rem); line-height: 1.45; max-width: 34rem; margin-top: 1rem; }
+    .partner-box {
+      margin-top: 2rem;
+      background: var(--surface);
+      border: 1px solid var(--raised);
+      border-radius: 10px;
+      padding: 0.9rem 1.1rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+      max-width: 28rem;
+    }
+    .logo { width: 72px; height: 72px; object-fit: contain; }
+    .cards-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    @media (max-width: 900px) {
+      .slide.title-slide.active { grid-template-columns: 1fr; }
+      .title-visual { min-height: 28vh; }
+      .cards-2, .tech-grid, .roadmap { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: rgba(19, 40, 32, 0.82);
+      border: 1px solid var(--raised);
+      border-radius: 12px;
+      padding: 1.1rem 1.2rem;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      backdrop-filter: blur(6px);
+    }
+    .card img.icon { width: 72px; height: 72px; border-radius: 14px; object-fit: cover; flex-shrink: 0; }
+    .card h3 { color: var(--gold); font-size: 1.05rem; margin-bottom: 0.35rem; }
+    .card p, .card li { color: var(--text); font-size: 0.92rem; line-height: 1.4; }
+    .card ul { list-style: none; margin-top: 0.7rem; }
+    .card li { margin-bottom: 0.55rem; }
+    .card li::before { content: "● "; color: var(--accent); }
+    .mission-layout {
+      display: grid;
+      grid-template-columns: 1.3fr 0.9fr;
+      gap: 1.2rem;
+      height: calc(100% - 5rem);
+    }
+    .mission-list { display: flex; flex-direction: column; gap: 0.7rem; }
+    .mission-item {
+      background: rgba(19, 40, 32, 0.82);
+      border-radius: 10px;
+      padding: 0.75rem 0.9rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      border: 1px solid var(--raised);
+      backdrop-filter: blur(6px);
+    }
+    .num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--gold); color: var(--bg);
+      display: grid; place-items: center;
+      font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+    }
+    .mission-photo {
+      border-radius: 12px;
+      overflow: hidden;
+      border-top: 4px solid var(--gold);
+      background: url('./assets/ppt-bg-03-mission.png') center/cover no-repeat;
+      min-height: 280px;
+    }
+    .partner-row {
+      display: flex; gap: 0.9rem; align-items: center;
+      background: rgba(19, 40, 32, 0.82); border: 1px solid var(--raised);
+      border-radius: 10px; padding: 0.7rem 1rem; margin-bottom: 0.7rem;
+      backdrop-filter: blur(6px);
+    }
+    .partner-row img { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; }
+    .partner-row strong { color: var(--gold); display: block; margin-bottom: 0.15rem; }
+    .partner-row span { color: var(--text); font-size: 0.9rem; }
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.9rem;
+      margin-top: 0.8rem;
+    }
+    .tech-card {
+      background: rgba(19, 40, 32, 0.82);
+      border: 1px solid var(--raised);
+      border-radius: 12px;
+      padding: 1.2rem 1rem;
+      min-height: 240px;
+      border-top: 4px solid var(--gold);
+      backdrop-filter: blur(6px);
+    }
+    .tech-card:nth-child(even) { border-top-color: var(--accent); }
+    .tech-card .n { color: var(--gold); font-size: 1.6rem; font-weight: 700; }
+    .tech-card h3 { color: var(--accent); margin: 0.7rem 0 0.6rem; font-size: 1.1rem; }
+    .tech-card p { color: var(--text); font-size: 0.9rem; line-height: 1.45; white-space: pre-line; }
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.9rem;
+      margin-top: 2.2rem;
+      position: relative;
+    }
+    .roadmap::before {
+      content: "";
+      position: absolute;
+      left: 4%; right: 4%; top: -1.15rem;
+      height: 4px; background: var(--gold); border-radius: 2px;
+    }
+    .phase {
+      background: rgba(19, 40, 32, 0.82);
+      border: 1px solid var(--raised);
+      border-radius: 12px;
+      padding: 1rem;
+      position: relative;
+      backdrop-filter: blur(6px);
+    }
+    .phase::before {
+      content: "";
+      position: absolute;
+      top: -1.55rem; left: 50%; transform: translateX(-50%);
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--gold); border: 3px solid var(--bg);
+    }
+    .phase .label { color: var(--muted); font-size: 0.8rem; font-weight: 700; }
+    .phase h3 { color: var(--accent); margin: 0.35rem 0 0.7rem; }
+    .phase p { color: var(--text); font-size: 0.9rem; line-height: 1.45; white-space: pre-line; }
+    .close-slide {
+      text-align: center;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .close-slide.active { display: flex; }
+    .close-slide h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); }
+    .cta {
+      margin-top: 0.8rem;
+      border: 1px solid var(--gold);
+      background: var(--surface);
+      color: var(--gold);
+      border-radius: 10px;
+      padding: 0.75rem 1.2rem;
+      font-size: 0.95rem;
+    }
+    .nav {
+      position: fixed; left: 0; right: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.7rem 1.2rem;
+      background: rgba(10, 21, 16, 0.95);
+      border-top: 1px solid #2a4a3a;
+      z-index: 20;
+    }
+    .nav button {
+      background: var(--surface); color: var(--text);
+      border: 1px solid #2a4a3a; border-radius: 8px;
+      padding: 0.5rem 1rem; font: inherit; cursor: pointer;
+    }
+    .nav button:hover { border-color: var(--accent); color: var(--accent); }
+    .page { color: var(--muted); font-size: 0.9rem; text-align: center; }
+    .hint { color: var(--muted); font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="deck" id="deck">
+    <section class="slide title-slide bg-1 active">
+      <div class="title-copy">
+        <img class="logo" src="./assets/trinity-logo.png" alt="Trinity" />
+        <p class="eyebrow">NONPROFIT · COMMUNITY · FAITH</p>
+        <h1>Trinity</h1>
+        <p class="lead">A digital home for the Romanian Orthodox community in Southern California — church events, connection, and mutual help.</p>
+        <div class="partner-box">
+          <strong style="color:var(--gold)">Intended partners</strong><br/>
+          Romanian Consulate in Los Angeles · Romanian Patriarchate
+        </div>
+      </div>
+      <div class="title-visual" aria-hidden="true"></div>
+    </section>
+
+    <section class="slide bg-2">
+      <h2>The need</h2>
+      <p class="subtitle">Why Trinity exists for the Romanian Orthodox diaspora</p>
+      <div class="cards-2">
+        <div class="card"><img class="icon" src="./assets/ppt-icon-church.png" alt="" /><div><h3>Faith &amp; parish life</h3><p>Trusted space for liturgies, feast days, memorials, and parish announcements.</p></div></div>
+        <div class="card"><img class="icon" src="./assets/ppt-icon-trinity.png" alt="" /><div><h3>Distance &amp; diaspora</h3><p>Los Angeles is spread out — people miss events and lose touch with parish life.</p></div></div>
+        <div class="card"><img class="icon" src="./assets/ppt-icon-help.png" alt="" /><div><h3>Mutual help</h3><p>Safe way to find help with work, housing leads, rides, and practical tasks.</p></div></div>
+        <div class="card"><img class="icon" src="./assets/ppt-icon-consulate.png" alt="" /><div><h3>Trusted institutions</h3><p>Consulate &amp; Patriarchate endorsement builds confidence and continuity.</p></div></div>
+      </div>
+    </section>
+
+    <section class="slide bg-3">
+      <h2>Mission</h2>
+      <p class="subtitle">Faith-rooted. Nonprofit. Community-first.</p>
+      <div class="mission-layout">
+        <div class="mission-list">
+          <div class="mission-item"><div class="num">1</div><div>Serve Romanian Orthodox parish life with clear church-event communication.</div></div>
+          <div class="mission-item"><div class="num">2</div><div>Operate as a nonprofit — not commercial social media.</div></div>
+          <div class="mission-item"><div class="num">3</div><div>Seek endorsement from the Consulate in Los Angeles and the Patriarchate.</div></div>
+          <div class="mission-item"><div class="num">4</div><div>Help Romanians help each other with practical work tasks and needs.</div></div>
+          <div class="mission-item"><div class="num">5</div><div>Uphold dignity, privacy, and Orthodox Christian values.</div></div>
+        </div>
+        <div class="mission-photo" role="img" aria-label="Community"></div>
+      </div>
+    </section>
+
+    <section class="slide bg-4">
+      <h2>What Trinity offers</h2>
+      <p class="subtitle">One platform for parish life and mutual support</p>
+      <div class="cards-2">
+        <div class="card" style="flex-direction:column">
+          <div style="display:flex;gap:0.8rem;align-items:center">
+            <img class="icon" src="./assets/ppt-icon-church.png" alt="" />
+            <h3>Church &amp; parish</h3>
+          </div>
+          <ul>
+            <li>Parish news feed &amp; spiritual community posts</li>
+            <li>Groups for parishes, feast days &amp; ministries</li>
+            <li>Event updates members can follow and share</li>
+            <li>Member profiles for recognition &amp; trust</li>
+            <li>In-app notifications for community activity</li>
+          </ul>
+        </div>
+        <div class="card" style="flex-direction:column">
+          <div style="display:flex;gap:0.8rem;align-items:center">
+            <img class="icon" src="./assets/ppt-icon-help.png" alt="" />
+            <h3>Community &amp; mutual help</h3>
+          </div>
+          <ul>
+            <li>Direct messages for private coordination</li>
+            <li>Help needed / help offered task posts</li>
+            <li>Groups for trades, volunteering &amp; support</li>
+            <li>Native Android &amp; iOS apps (Capacitor)</li>
+            <li>Secure email &amp; social authentication</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide bg-5">
+      <h2>Institutional vision</h2>
+      <p class="subtitle">Intended endorsement pathway — in progress</p>
+      <div class="partner-row"><img src="./assets/ppt-icon-consulate.png" alt="" /><div><strong>Romanian Consulate — Los Angeles</strong><span>Civic recognition and a trusted channel for diaspora community programs.</span></div></div>
+      <div class="partner-row"><img src="./assets/ppt-icon-church.png" alt="" /><div><strong>Romanian Patriarchate</strong><span>Spiritual alignment with Orthodox pastoral care and parish communication standards.</span></div></div>
+      <div class="partner-row"><img src="./assets/ppt-icon-trinity.png" alt="" /><div><strong>Local parishes</strong><span>Pilot partners for calendars, announcements, and ministry groups.</span></div></div>
+      <div class="partner-row"><img src="./assets/ppt-icon-help.png" alt="" /><div><strong>Nonprofit governance</strong><span>Transparent board, community guidelines, no advertising-driven engagement.</span></div></div>
+    </section>
+
+    <section class="slide bg-6">
+      <h2>Technology snapshot</h2>
+      <p class="subtitle">Built for mobile, secured for community trust</p>
+      <div class="tech-grid">
+        <div class="tech-card"><div class="n">01</div><h3>Mobile-first</h3><p>React + TypeScript + Tailwind
+Capacitor for Android &amp; iOS</p></div>
+        <div class="tech-card"><div class="n">02</div><h3>Secure backend</h3><p>Supabase auth, database,
+realtime messaging &amp; storage</p></div>
+        <div class="tech-card"><div class="n">03</div><h3>Core features</h3><p>Auth, profiles, feed, groups,
+DMs &amp; notifications</p></div>
+        <div class="tech-card"><div class="n">04</div><h3>Brand identity</h3><p>Trinity rings mark — unity
+of the Holy Trinity</p></div>
+      </div>
+    </section>
+
+    <section class="slide bg-7">
+      <h2>Roadmap</h2>
+      <p class="subtitle">From foundation to community-wide impact</p>
+      <div class="roadmap">
+        <div class="phase"><div class="label">Phase 1</div><h3>Foundation</h3><p>Nonprofit setup
+Parish pilot
+Event calendar
+Community guidelines</p></div>
+        <div class="phase"><div class="label">Phase 2</div><h3>Partnerships</h3><p>Consulate LA talks
+Patriarchate pathway
+Endorsement materials</p></div>
+        <div class="phase"><div class="label">Phase 3</div><h3>Mutual help</h3><p>Tasks &amp; help board
+Moderation tools
+Safety &amp; fairness</p></div>
+        <div class="phase"><div class="label">Phase 4</div><h3>Growth</h3><p>More parishes
+RO / EN bilingual
+Volunteer tools</p></div>
+      </div>
+    </section>
+
+    <section class="slide close-slide bg-8">
+      <img class="logo" src="./assets/trinity-logo.png" alt="Trinity" />
+      <h1>Together in faith.<br/>Together in community.</h1>
+      <p class="lead" style="max-width:40rem">Trinity strengthens Romanian Orthodox life in Los Angeles and beyond — keeping parishioners informed, connected, and ready to help one another.</p>
+      <div class="cta">Next: nonprofit formation · parish pilot · Consulate &amp; Patriarchate talks</div>
+    </section>
+  </div>
+
+  <div class="nav">
+    <button type="button" id="prev">← Previous</button>
+    <div>
+      <div class="page" id="page">1 / 8</div>
+      <div class="hint">Arrow keys · Space</div>
+    </div>
+    <button type="button" id="next">Next →</button>
+  </div>
+
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    let i = 0;
+    function show(n) {
+      i = Math.max(0, Math.min(slides.length - 1, n));
+      slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+      document.getElementById('page').textContent = `${i + 1} / ${slides.length}`;
+    }
+    document.getElementById('prev').onclick = () => show(i - 1);
+    document.getElementById('next').onclick = () => show(i + 1);
+    document.addEventListener('keydown', (e) => {
+      if (['ArrowRight', 'ArrowDown', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); show(i + 1); }
+      if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { e.preventDefault(); show(i - 1); }
+    });
+    show(0);
+  </script>
+</body>
+</html>
