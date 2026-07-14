@@ -33,6 +33,9 @@ type PresentationCopy = {
   modelEyebrow: string
   modelTitle: string
   modelBody: string
+  modelModalTitle: string
+  modelModalBody: string[]
+  modelModalClose: string
   closeEyebrow: string
   closeTitle: string
   closeLead: string
@@ -105,6 +108,14 @@ export const presentationCopy: Record<Lang, PresentationCopy> = {
     modelTitle: 'Sustainable ministry through monthly micro-contribution',
     modelBody:
       'Trinity is sustained by the community’s monthly micro-contributions—a shared commitment of care. It is built for spread good—not personal glory: Each gift quietly supports help, compassion, and practical programs so families and neighbors across the diaspora can grow stronger together.',
+    modelModalTitle: 'How monthly micro-contribution works',
+    modelModalBody: [
+      'A small monthly gift from many people creates steady support for families, parishes, and neighbors who need help.',
+      'Contributions are guided by compassion—not recognition—so help reaches people with dignity and care.',
+      'Your monthly share helps fund practical aid, pastoral presence, community connection, and events that keep faith and culture alive across the diaspora.',
+      'When you are ready, you can join the Trinity family and begin offering monthly help.',
+    ],
+    modelModalClose: 'Close',
     closeEyebrow: 'Endorsed & trusted',
     closeTitle: 'Building legacy together',
     closeLead: 'Trinity is honored to serve under the blessing and endorsement of:',
@@ -241,6 +252,14 @@ export const presentationCopy: Record<Lang, PresentationCopy> = {
     modelTitle: 'Misiune durabilă prin micro-contribuție lunară',
     modelBody:
       'Trinity este susținută de micro-contribuțiile lunare ale comunității—un angajament comun de grijă. Este zidită pentru a răspândi binele, nu pentru slavă personală: Fiecare dar sprijină în tăcere ajutorul, compasiunea și programele practice, ca familiile și vecinii din diasporă să crească împreună mai puternici.',
+    modelModalTitle: 'Cum funcționează micro-contribuția lunară',
+    modelModalBody: [
+      'Un dar lunar mic din partea multora creează sprijin statornic pentru familii, parohii și vecini aflați în nevoie.',
+      'Contribuțiile sunt călăuzite de compasiune—nu de recunoaștere—ca ajutorul să ajungă la oameni cu demnitate și grijă.',
+      'Partea ta lunară ajută la finanțarea ajutorului practic, a prezenței pastorale, a legăturilor comunitare și a evenimentelor care țin vii credința și cultura în diasporă.',
+      'Când ești gata, te poți alătura familiei Trinity și începe să oferi ajutor lunar.',
+    ],
+    modelModalClose: 'Închide',
     closeEyebrow: 'Susținută & demnă de încredere',
     closeTitle: 'Zidim moștenire împreună',
     closeLead: 'Trinity are onoarea de a sluji sub binecuvântarea și susținerea:',

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { TrinityLogo } from '@/components/TrinityLogo'
@@ -13,6 +13,8 @@ export function PresentationPage() {
   const { user } = useAuth()
   const enterTo = user ? '/feed' : '/auth'
   const [lang, setLang] = useState<Lang>(() => getStoredLang())
+  const [modelOpen, setModelOpen] = useState(false)
+  const modelTitleId = useId()
   const t = presentationCopy[lang]
 
   function toggleLang() {
@@ -21,6 +23,20 @@ export function PresentationPage() {
     storeLang(next)
     document.documentElement.lang = next
   }
+
+  useEffect(() => {
+    if (!modelOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setModelOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prev
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [modelOpen])
 
   return (
     <div
@@ -231,15 +247,60 @@ export function PresentationPage() {
           </h2>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[var(--color-text-muted)]">
             {t.modelBody}{' '}
-            <Link
-              to={enterTo}
+            <button
+              type="button"
+              onClick={() => setModelOpen(true)}
               className="font-semibold text-[var(--color-accent)] underline decoration-[var(--color-accent)]/40 underline-offset-4 transition hover:text-[var(--color-gold,#d4af37)] hover:decoration-[var(--color-gold,#d4af37)]"
             >
               {t.learnMore}
-            </Link>
+            </button>
           </p>
         </div>
       </section>
+
+      {modelOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center"
+          role="presentation"
+          onClick={() => setModelOpen(false)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={modelTitleId}
+            className="max-h-[85svh] w-full max-w-lg overflow-y-auto border border-[var(--color-border)] border-t-2 border-t-[var(--color-gold,#d4af37)] bg-[var(--color-bg)] p-6 shadow-2xl sm:p-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3
+              id={modelTitleId}
+              className="pres-display text-3xl text-[var(--color-accent)]"
+            >
+              {t.modelModalTitle}
+            </h3>
+            <div className="mt-5 space-y-4 text-base leading-relaxed text-[var(--color-text-muted)]">
+              {t.modelModalBody.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                to={enterTo}
+                className="rounded-md bg-[var(--color-accent)] px-5 py-2.5 font-semibold text-[var(--color-bg)] transition hover:bg-[var(--color-accent-dim)]"
+                onClick={() => setModelOpen(false)}
+              >
+                {t.monthlyHelp}
+              </Link>
+              <button
+                type="button"
+                onClick={() => setModelOpen(false)}
+                className="rounded-md border border-[var(--color-border)] px-5 py-2.5 text-[var(--color-text-muted)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-text)]"
+              >
+                {t.modelModalClose}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {/* Endorsements + close */}
       <section
