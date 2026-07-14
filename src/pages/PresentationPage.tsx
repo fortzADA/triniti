@@ -1,121 +1,55 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { TrinityLogo } from '@/components/TrinityLogo'
-
-const pillars = [
-  {
-    id: 'help',
-    title: 'Help',
-    kicker: 'Pillar one',
-    subtitle: 'Compassion in Action',
-    overview:
-      'Tangible compassion and practical support for families and individuals in need.',
-    image: '/presentation/pillars/help-bg.jpeg',
-    points: [
-      {
-        text: 'Emergency financial assistance & charitable aid',
-        icon: '/presentation/pillars/s4-i2.png',
-      },
-      {
-        text: 'Family counseling and pastoral care',
-        icon: '/presentation/pillars/s4-i3.png',
-      },
-      {
-        text: 'New immigrant integration support',
-        icon: '/presentation/pillars/s4-i4.png',
-      },
-      {
-        text: 'Youth mentorship & educational resources',
-        icon: '/presentation/pillars/s4-i5.png',
-      },
-      {
-        text: "Confidential guidance through life's transitions",
-        icon: '/presentation/pillars/s4-i6.png',
-      },
-    ],
-  },
-  {
-    id: 'connect',
-    title: 'Connect',
-    kicker: 'Pillar two',
-    subtitle: 'A Family Away From Home',
-    overview:
-      'Authentic relationships, spiritual networks, and a true sense of belonging.',
-    image: '/presentation/pillars/connect-bg.jpeg',
-    points: [
-      {
-        text: 'Parish-based & online small faith groups',
-        icon: '/presentation/pillars/s5-i2.png',
-      },
-      {
-        text: 'Intergenerational mentorship programs',
-        icon: '/presentation/pillars/s5-i3.png',
-      },
-      {
-        text: 'Prayer chains & spiritual companionship',
-        icon: '/presentation/pillars/s5-i4.png',
-      },
-      {
-        text: 'Cultural & linguistic heritage initiatives',
-        icon: '/presentation/pillars/s5-i5.png',
-      },
-      {
-        text: 'Dedicated digital platform for the diaspora',
-        icon: '/presentation/pillars/s5-i6.png',
-      },
-    ],
-  },
-  {
-    id: 'events',
-    title: 'Events',
-    kicker: 'Pillar three',
-    subtitle: 'Celebrating Faith & Heritage',
-    overview:
-      'Vibrant celebrations of faith, culture, and the joy of Orthodox life together.',
-    image: '/presentation/pillars/events-bg.jpeg',
-    points: [
-      {
-        text: 'Holy Liturgy & major feast day services',
-        icon: '/presentation/pillars/s6-i2.png',
-      },
-      {
-        text: 'Romanian cultural festivals & traditions',
-        icon: '/presentation/pillars/s6-i3.png',
-      },
-      {
-        text: 'Educational workshops & faith lectures',
-        icon: '/presentation/pillars/s6-i4.png',
-      },
-      {
-        text: 'Youth retreats and family gatherings',
-        icon: '/presentation/pillars/s6-i5.png',
-      },
-      {
-        text: 'Annual charity galas & outreach events',
-        icon: '/presentation/pillars/s6-i6.png',
-      },
-    ],
-  },
-] as const
+import {
+  getStoredLang,
+  presentationCopy,
+  storeLang,
+  type Lang,
+} from '@/i18n/presentation'
 
 export function PresentationPage() {
   const { user } = useAuth()
   const enterTo = user ? '/feed' : '/auth'
+  const [lang, setLang] = useState<Lang>(() => getStoredLang())
+  const t = presentationCopy[lang]
+
+  function toggleLang() {
+    const next: Lang = lang === 'en' ? 'ro' : 'en'
+    setLang(next)
+    storeLang(next)
+    document.documentElement.lang = next
+  }
 
   return (
-    <div className="presentation min-h-full overflow-x-hidden bg-[var(--color-bg)] text-[var(--color-text)]">
-      <header className="fixed inset-x-0 top-0 z-30 flex items-center justify-between px-5 py-4 backdrop-blur-md bg-[var(--color-bg)]/70"
+    <div
+      className="presentation min-h-full overflow-x-hidden bg-[var(--color-bg)] text-[var(--color-text)]"
+      lang={lang}
+    >
+      <header
+        className="fixed inset-x-0 top-0 z-30 flex items-center justify-between px-5 py-4 backdrop-blur-md bg-[var(--color-bg)]/70"
         style={{ paddingTop: 'calc(0.75rem + var(--safe-top))' }}
       >
         <Link to="/" className="inline-flex items-center gap-2">
           <TrinityLogo size={52} />
         </Link>
-        <Link
-          to={enterTo}
-          className="rounded-md border border-[var(--color-gold,#d4af37)] px-3 py-1.5 text-sm text-[var(--color-gold,#d4af37)] transition hover:bg-[var(--color-gold,#d4af37)]/10"
-        >
-          {user ? 'Open app' : 'Join'}
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleLang}
+            className="rounded-md border border-[var(--color-gold,#d4af37)] px-3 py-1.5 text-sm font-semibold tracking-wide text-[var(--color-gold,#d4af37)] transition hover:bg-[var(--color-gold,#d4af37)]/10"
+            aria-label={lang === 'en' ? 'Translate to Romanian' : 'Translate to English'}
+          >
+            {t.translateTo}
+          </button>
+          <Link
+            to={enterTo}
+            className="rounded-md border border-[var(--color-gold,#d4af37)] px-3 py-1.5 text-sm text-[var(--color-gold,#d4af37)] transition hover:bg-[var(--color-gold,#d4af37)]/10"
+          >
+            {user ? t.openApp : t.join}
+          </Link>
+        </div>
       </header>
 
       {/* Hero — one composition */}
@@ -130,31 +64,29 @@ export function PresentationPage() {
       >
         <div className="pres-fade relative z-10 max-w-3xl px-6 pb-16 pt-28 md:px-12 md:pb-20">
           <p className="pres-eyebrow mb-3 text-xs font-semibold tracking-[0.2em] text-[var(--color-gold,#d4af37)] uppercase">
-            Faith · Community · Hope
+            {t.heroEyebrow}
           </p>
           <h1 className="pres-display text-6xl leading-[0.95] tracking-tight text-[var(--color-accent)] md:text-8xl">
             Trinity
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-[var(--color-text)] md:text-xl">
-            A ministry serving the Romanian Orthodox community around the world.
+            {t.heroLead}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to={enterTo}
               className="pres-cta rounded-md bg-[var(--color-accent)] px-5 py-3 font-semibold text-[var(--color-bg)] transition hover:bg-[var(--color-accent-dim)]"
             >
-              {user ? 'Enter community' : 'Join the Trinity family'}
+              {user ? t.enterCommunity : t.joinFamily}
             </Link>
             <a
               href="#need"
               className="rounded-md border border-[var(--color-border)] px-5 py-3 text-[var(--color-text-muted)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-text)]"
             >
-              Learn more
+              {t.learnMore}
             </a>
           </div>
-          <p className="mt-8 max-w-md text-sm text-[var(--color-text-muted)]">
-            Endorsed by the Romanian Consulate in Los Angeles &amp; the Romanian Patriarchate
-          </p>
+          <p className="mt-8 max-w-md text-sm text-[var(--color-text-muted)]">{t.endorsedBy}</p>
         </div>
       </section>
 
@@ -171,25 +103,19 @@ export function PresentationPage() {
       >
         <div className="mx-auto max-w-3xl">
           <p className="pres-eyebrow text-xs font-semibold tracking-[0.18em] text-[var(--color-gold,#d4af37)] uppercase">
-            The need
+            {t.needEyebrow}
           </p>
           <h2 className="pres-display mt-2 text-4xl text-[var(--color-accent)] md:text-5xl">
-            Bridging the gap for Romanian Orthodox faithful
+            {t.needTitle}
           </h2>
-          <p className="mt-6 text-lg leading-relaxed text-[var(--color-text)]">
-            Over one million Romanians call the United States home. Many face the quiet ache of
-            spiritual disconnection — far from ancestral parishes, navigating life in a new land
-            while striving to pass on the beauty of Orthodox faith and Romanian culture to their
-            children.
-          </p>
+          <p className="mt-6 text-lg leading-relaxed text-[var(--color-text)]">{t.needBody1}</p>
           <p className="mt-4 text-lg leading-relaxed text-[var(--color-text-muted)]">
-            Trinity was born to answer this call: a living bridge of faith, practical help, and
-            authentic community for the diaspora.
+            {t.needBody2}
           </p>
         </div>
       </section>
 
-      {/* Three pillars — slides 4–6 compressed into one section */}
+      {/* Three pillars */}
       <section
         id="pillars"
         className="border-l-4 border-[var(--color-gold,#d4af37)] px-6 py-20 md:px-12"
@@ -202,19 +128,17 @@ export function PresentationPage() {
       >
         <div className="mx-auto max-w-6xl">
           <p className="pres-eyebrow text-xs font-semibold tracking-[0.18em] text-[var(--color-gold,#d4af37)] uppercase">
-            Introducing Trinity
+            {t.pillarsEyebrow}
           </p>
           <h2 className="pres-display mt-2 text-4xl text-[var(--color-accent)] md:text-5xl">
-            Three pillars. One sacred mission.
+            {t.pillarsTitle}
           </h2>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[var(--color-text-muted)]">
-            Rooted in the Holy Trinity and the rich tradition of the Romanian Orthodox Church,
-            Trinity offers a holistic ministry of presence, compassion, and celebration for
-            Romanians across America.
+            {t.pillarsLead}
           </p>
 
           <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
-            {pillars.map((pillar) => (
+            {t.pillars.map((pillar) => (
               <div key={pillar.id} id={pillar.id} className="pres-rise min-w-0">
                 <div className="relative mb-5 h-36 overflow-hidden border-t-2 border-[var(--color-gold,#d4af37)] md:h-40">
                   <img
@@ -266,20 +190,20 @@ export function PresentationPage() {
         </div>
       </section>
 
-      {/* Subscription model */}
-      <section id="support" className="border-l-4 border-[var(--color-gold,#d4af37)] bg-[var(--color-surface)] px-6 py-20 md:px-12">
+      {/* Model */}
+      <section
+        id="support"
+        className="border-l-4 border-[var(--color-gold,#d4af37)] bg-[var(--color-surface)] px-6 py-20 md:px-12"
+      >
         <div className="mx-auto max-w-5xl">
           <p className="pres-eyebrow text-xs font-semibold tracking-[0.18em] text-[var(--color-gold,#d4af37)] uppercase">
-            Our model
+            {t.modelEyebrow}
           </p>
           <h2 className="pres-display mt-2 text-4xl text-[var(--color-accent)] md:text-5xl">
-            Sustainable ministry through monthly micro-contribution
+            {t.modelTitle}
           </h2>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[var(--color-text-muted)]">
-            Trinity is sustained by the community’s monthly micro-contributions—a shared
-            commitment of care. It is built for spread good—not personal glory: Each gift
-            quietly supports help, compassion, and practical programs so families and neighbors
-            across the diaspora can grow stronger together.
+            {t.modelBody}
           </p>
         </div>
       </section>
@@ -296,14 +220,12 @@ export function PresentationPage() {
       >
         <div className="mx-auto max-w-3xl">
           <p className="pres-eyebrow text-xs font-semibold tracking-[0.18em] text-[var(--color-gold,#d4af37)] uppercase">
-            Endorsed &amp; trusted
+            {t.closeEyebrow}
           </p>
           <h2 className="pres-display mt-2 text-4xl text-[var(--color-accent)] md:text-5xl">
-            Building legacy together
+            {t.closeTitle}
           </h2>
-          <p className="mt-4 text-[var(--color-text-muted)]">
-            Trinity is honored to serve under the blessing and endorsement of:
-          </p>
+          <p className="mt-4 text-[var(--color-text-muted)]">{t.closeLead}</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-10">
             <div className="flex flex-col items-center gap-2">
               <img
@@ -311,10 +233,8 @@ export function PresentationPage() {
                 alt=""
                 className="h-16 w-16 rounded-2xl object-cover"
               />
-              <p className="text-sm text-[var(--color-gold,#d4af37)]">
-                Romanian Consulate
-                <br />
-                in Los Angeles
+              <p className="whitespace-pre-line text-sm text-[var(--color-gold,#d4af37)]">
+                {t.consulate}
               </p>
             </div>
             <div className="flex flex-col items-center gap-2">
@@ -323,19 +243,17 @@ export function PresentationPage() {
                 alt=""
                 className="h-16 w-16 rounded-2xl object-cover"
               />
-              <p className="text-sm text-[var(--color-gold,#d4af37)]">
-                The Romanian
-                <br />
-                Patriarchate
+              <p className="whitespace-pre-line text-sm text-[var(--color-gold,#d4af37)]">
+                {t.patriarchate}
               </p>
             </div>
           </div>
 
           <blockquote className="pres-display mt-14 text-2xl leading-snug text-[var(--color-text)] md:text-3xl">
-            “Where two or three are gathered in My name, there I am in the midst of them.”
+            {t.verse}
           </blockquote>
           <p className="mt-3 text-sm tracking-wide text-[var(--color-gold,#d4af37)]">
-            — Matthew 18:20
+            {t.verseCite}
           </p>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
@@ -343,18 +261,16 @@ export function PresentationPage() {
               to={enterTo}
               className="rounded-md bg-[var(--color-accent)] px-5 py-3 font-semibold text-[var(--color-bg)] transition hover:bg-[var(--color-accent-dim)]"
             >
-              Offer monthly help
+              {t.monthlyHelp}
             </Link>
             <Link
               to={enterTo}
               className="rounded-md border border-[var(--color-gold,#d4af37)] px-5 py-3 text-[var(--color-gold,#d4af37)] transition hover:bg-[var(--color-gold,#d4af37)]/10"
             >
-              Volunteer · Partner with us
+              {t.volunteer}
             </Link>
           </div>
-          <p className="mt-10 text-xs tracking-wide text-[var(--color-text-muted)]">
-            Trinity Ministry · Romanian Orthodox Diaspora · Los Angeles, California
-          </p>
+          <p className="mt-10 text-xs tracking-wide text-[var(--color-text-muted)]">{t.footer}</p>
         </div>
       </section>
     </div>
