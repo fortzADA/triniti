@@ -1,4 +1,14 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
+import {
+  Component,
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { TrinityLogo } from '@/components/TrinityLogo'
@@ -9,6 +19,30 @@ import type { Church } from '@/lib/types'
 const ChurchGlobe = lazy(() =>
   import('@/components/ChurchGlobe').then((m) => ({ default: m.ChurchGlobe })),
 )
+
+class GlobeErrorBoundary extends Component<
+  { children: ReactNode },
+  { message: string }
+> {
+  state = { message: '' }
+
+  static getDerivedStateFromError(error: unknown) {
+    return {
+      message: error instanceof Error ? error.message : 'Failed to load the Earth globe',
+    }
+  }
+
+  render() {
+    if (this.state.message) {
+      return (
+        <div className="flex h-full items-center justify-center px-6 text-center text-sm text-[var(--color-text-muted)]">
+          {this.state.message}
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 function scorePinMatch(pin: GlobeChurchPin, q: string): number {
   const city = pin.city.toLowerCase()
@@ -193,21 +227,23 @@ export function ChurchesPage() {
                 </div>
               }
             >
-              <ChurchGlobe
-                pins={pins}
-                selectedId={selected?.id ?? null}
-                flyKey={flyKey}
-                onSelect={setSelected}
-              />
+              <GlobeErrorBoundary>
+                <ChurchGlobe
+                  pins={pins}
+                  selectedId={selected?.id ?? null}
+                  flyKey={flyKey}
+                  onSelect={setSelected}
+                />
+              </GlobeErrorBoundary>
             </Suspense>
 
             <div className="pointer-events-none absolute bottom-3 left-3 z-20 rounded-md bg-[var(--color-bg)]/75 px-3 py-2 text-xs text-[var(--color-text-muted)] backdrop-blur-sm">
               <span className="mr-3 inline-flex items-center gap-1.5">
-                <span className="inline-block h-2 w-2 rounded-full bg-[var(--color-gold)]" />
-                Landmark
+                <span className="inline-block h-2.5 w-2.5 rounded-full bg-[var(--color-gold)] ring-1 ring-[var(--color-bg)]" />
+                Landmark parish
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <span className="inline-block h-2 w-2 rounded-full bg-[var(--color-accent)]" />
+                <span className="inline-block h-2.5 w-2.5 rounded-full bg-[var(--color-accent)] ring-1 ring-[var(--color-bg)]" />
                 Live on Trinity
               </span>
             </div>

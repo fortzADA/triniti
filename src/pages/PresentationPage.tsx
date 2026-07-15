@@ -6,22 +6,43 @@ import {
   getStoredLang,
   presentationCopy,
   storeLang,
+  type BenefitAudience,
   type Lang,
 } from '@/i18n/presentation'
+
+type ModalKind = 'idea' | 'contrib' | BenefitAudience['id'] | null
 
 export function PresentationPage() {
   const { user } = useAuth()
   const enterTo = user ? '/churches' : '/auth'
   const [lang, setLang] = useState<Lang>(() => getStoredLang())
-  const [openModal, setOpenModal] = useState<'idea' | 'contrib' | null>(null)
+  const [openModal, setOpenModal] = useState<ModalKind>(null)
   const modalTitleId = useId()
   const t = presentationCopy[lang]
+  const benefitModal =
+    openModal === 'church' || openModal === 'community' || openModal === 'consulates'
+      ? t.benefits.find((b) => b.id === openModal) ?? null
+      : null
+
   const modalContent =
     openModal === 'idea'
-      ? { title: t.ideaModalTitle, body: t.ideaModalBody, wide: true }
+      ? { kind: 'text' as const, title: t.ideaModalTitle, body: t.ideaModalBody, wide: true }
       : openModal === 'contrib'
-        ? { title: t.contribModalTitle, body: t.contribModalBody, wide: false }
-        : null
+        ? {
+            kind: 'text' as const,
+            title: t.contribModalTitle,
+            body: t.contribModalBody,
+            wide: false,
+          }
+        : benefitModal
+          ? {
+              kind: 'benefit' as const,
+              title: benefitModal.modalTitle,
+              intro: benefitModal.modalIntro,
+              examples: benefitModal.modalExamples,
+              wide: true,
+            }
+          : null
 
   function toggleLang() {
     const next: Lang = lang === 'en' ? 'ro' : 'en'
@@ -246,6 +267,72 @@ export function PresentationPage() {
         </div>
       </section>
 
+      {/* Benefits — Church, Community, Consulates */}
+      <section
+        id="benefits"
+        className="border-l-4 border-[var(--color-gold,#d4af37)] px-6 py-20 md:px-12"
+        style={{
+          background:
+            'radial-gradient(ellipse 70% 50% at 20% 0%, rgba(61,214,140,0.08) 0%, transparent 55%), var(--color-bg)',
+        }}
+      >
+        <div className="mx-auto max-w-6xl">
+          <p className="pres-eyebrow text-xs font-semibold tracking-[0.18em] text-[var(--color-gold,#d4af37)] uppercase">
+            {t.benefitsEyebrow}
+          </p>
+          <h2 className="pres-display mt-2 text-4xl text-[var(--color-accent)] md:text-5xl">
+            {t.benefitsTitle}
+          </h2>
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-[var(--color-text-muted)]">
+            {t.benefitsLead}
+          </p>
+
+          <div className="mt-14 grid gap-14 md:grid-cols-3 md:gap-10">
+            {t.benefits.map((benefit, index) => (
+              <div
+                key={benefit.id}
+                id={benefit.id}
+                className="pres-rise min-w-0 border-t-2 border-[var(--color-gold,#d4af37)] pt-6"
+                style={{ animationDelay: `${index * 0.12}s` }}
+              >
+                <img
+                  src={benefit.icon}
+                  alt=""
+                  className="h-14 w-14 rounded-2xl object-cover"
+                />
+                <h3 className="pres-display mt-5 text-3xl text-[var(--color-accent)] md:text-4xl">
+                  {benefit.title}
+                </h3>
+                <p className="mt-3 text-base leading-relaxed text-[var(--color-text)]">
+                  {benefit.lead}
+                </p>
+                <ul className="mt-6 space-y-3">
+                  {benefit.points.map((point) => (
+                    <li
+                      key={point}
+                      className="flex gap-3 text-sm leading-snug text-[var(--color-text-muted)]"
+                    >
+                      <span
+                        className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-gold,#d4af37)]"
+                        aria-hidden
+                      />
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  onClick={() => setOpenModal(benefit.id)}
+                  className="mt-6 text-sm font-semibold text-[var(--color-accent)] underline decoration-[var(--color-accent)]/40 underline-offset-4 transition hover:text-[var(--color-gold,#d4af37)] hover:decoration-[var(--color-gold,#d4af37)]"
+                >
+                  {t.learnMore}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Model */}
       <section
         id="support"
@@ -292,11 +379,33 @@ export function PresentationPage() {
             >
               {modalContent.title}
             </h3>
-            <div className="mt-5 space-y-4 text-base leading-relaxed text-[var(--color-text-muted)]">
-              {modalContent.body.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-            </div>
+            {modalContent.kind === 'benefit' ? (
+              <div className="mt-5 space-y-5 text-base leading-relaxed text-[var(--color-text-muted)]">
+                <p>{modalContent.intro}</p>
+                <div>
+                  <p className="pres-eyebrow text-[11px] font-semibold tracking-[0.16em] text-[var(--color-gold,#d4af37)] uppercase">
+                    {t.benefitsEyebrow}
+                  </p>
+                  <ul className="mt-3 space-y-3">
+                    {modalContent.examples.map((example) => (
+                      <li key={example} className="flex gap-3">
+                        <span
+                          className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-gold,#d4af37)]"
+                          aria-hidden
+                        />
+                        <span>{example}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-5 space-y-4 text-base leading-relaxed text-[var(--color-text-muted)]">
+                {modalContent.body.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
+            )}
             <div className="mt-8 flex flex-wrap gap-3">
               {openModal === 'contrib' ? (
                 <Link

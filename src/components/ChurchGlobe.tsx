@@ -11,6 +11,8 @@ type Props = {
   onReady?: () => void
 }
 
+type PinDatum = GlobeChurchPin & { selected: boolean }
+
 const EARTH_TEXTURE =
   'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg'
 const BUMP_TEXTURE =
@@ -43,7 +45,6 @@ function easeOutCubic(t: number) {
   return 1 - Math.pow(1 - t, 3)
 }
 
-/** Smooth approach that settles as the pin comes into view. */
 function easeApproach(t: number) {
   const x = clamp01(t)
   return 1 - Math.pow(1 - x, 3)
@@ -63,6 +64,31 @@ function aimErrorDeg(lat: number, lng: number, pinLat: number, pinLng: number) {
   return Math.hypot(dLat, dLng)
 }
 
+function mapPinMarkup(color: string, selected: boolean) {
+  const w = selected ? 30 : 22
+  const h = Math.round(w * 1.45)
+  return `
+    <div class="church-map-pin${selected ? ' is-selected' : ''}" style="
+      width:${w}px;height:${h}px;
+      transform:translate(-50%,-100%);
+      cursor:pointer;
+      pointer-events:auto;
+      filter:drop-shadow(0 2px 4px rgba(0,0,0,.45));
+    ">
+      <svg viewBox="0 0 24 36" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path
+          fill="${color}"
+          stroke="#0c1a14"
+          stroke-width="1.1"
+          d="M12 0C5.4 0 0 5.25 0 11.7 0 20.5 12 36 12 36s12-15.5 12-24.3C24 5.25 18.6 0 12 0z"
+        />
+        <circle cx="12" cy="12" r="4.5" fill="#0c1a14"/>
+        <circle cx="12" cy="12" r="2.4" fill="#e8f0eb"/>
+      </svg>
+    </div>
+  `
+}
+
 export function ChurchGlobe({
   pins,
   selectedId,
@@ -72,8 +98,10 @@ export function ChurchGlobe({
 }: Props) {
   const globeRef = useRef<GlobeMethods | undefined>(undefined)
   const containerRef = useRef<HTMLDivElement>(null)
+  const onSelectRef = useRef(onSelect)
+  onSelectRef.current = onSelect
   const [dims, setDims] = useState({ w: 800, h: 600 })
-  const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const [globeError, setGlobeError] = useState('')
 
   useEffect(() => {
     const el = containerRef.current
@@ -96,14 +124,18 @@ export function ChurchGlobe({
   const handleReady = useCallback(() => {
     const globe = globeRef.current
     if (!globe) return
-    const controls = globe.controls()
-    controls.autoRotate = true
-    controls.autoRotateSpeed = 0.45
-    controls.enableDamping = true
-    controls.minDistance = 70
-    controls.maxDistance = 500
-    globe.pointOfView({ lat: 30, lng: 15, altitude: 2.15 }, 0)
-    onReady?.()
+    try {
+      const controls = globe.controls()
+      controls.autoRotate = true
+      controls.autoRotateSpeed = 0.45
+      controls.enableDamping = true
+      controls.minDistance = 70
+      controls.maxDistance = 500
+      globe.pointOfView({ lat: 30, lng: 15, altitude: 2.15 }, 0)
+      onReady?.()
+    } catch (err) {
+      setGlobeError(err instanceof Error ? err.message : 'Globe failed to start')
+    }
   }, [onReady])
 
   useEffect(() => {
@@ -180,52 +212,67 @@ export function ChurchGlobe({
     }
   }, [selectedId, pins, flyKey])
 
-  const pointsData = useMemo(
+  const htmlData = useMemo<PinDatum[]>(
     () =>
       pins.map((p) => ({
         ...p,
-        altitude: selectedId === p.id || hoveredId === p.id ? 0.12 : 0.05,
-        radius: selectedId === p.id ? p.size * 1.35 : p.size,
+        selected: selectedId === p.id,
       })),
-    [pins, selectedId, hoveredId],
+    [pins, selectedId],
   )
+
+  const createPinElement = useCallback((d: object) => {
+    const pin = d as PinDatum
+    const wrap = document.createElement('div')
+    wrap.innerHTML = mapPinMarkup(pin.color, pin.selected)
+    wrap.title = `${pin.name} — ${pin.city}, ${pin.country}`
+    wrap.style.pointerEvents = 'auto'
+    wrap.style.userSelect = 'none'
+    wrap.addEventListener('click', (e) => {
+      e.stopPropagation()
+      onSelectRef.current(pin)
+    })
+    return wrap
+  }, [])
 
   return (
     <div
       ref={containerRef}
       className="church-globe relative h-full w-full overflow-hidden rounded-none"
     >
-      <Globe
-        ref={globeRef}
-        width={dims.w}
-        height={dims.h}
-        backgroundImageUrl={NIGHT_SKY}
-        globeImageUrl={EARTH_TEXTURE}
-        bumpImageUrl={BUMP_TEXTURE}
-        backgroundColor="rgba(0,0,0,0)"
-        atmosphereColor="#7ec8a3"
-        atmosphereAltitude={0.18}
-        pointsData={pointsData}
-        pointLat="lat"
-        pointLng="lng"
-        pointAltitude="altitude"
-        pointRadius="radius"
-        pointColor="color"
-        pointsMerge={false}
-        pointLabel={(d) => {
-          const pin = d as GlobeChurchPin
-          return `<div style="font-family:system-ui;padding:6px 10px;background:#132820;border:1px solid #d4af37;color:#e8f0eb;border-radius:6px;font-size:12px;max-width:220px">
-            <strong style="color:#3dd68c">${pin.name}</strong><br/>
-            <span style="color:#8fa89a">${pin.city}, ${pin.country}</span>
-          </div>`
-        }}
-        onPointHover={(p) => setHoveredId((p as GlobeChurchPin | null)?.id ?? null)}
-        onPointClick={(p) => {
-          const pin = p as GlobeChurchPin
-          onSelect(pin)
-        }}
-        onGlobeReady={handleReady}
-      />
+      {globeError ? (
+        <div className="flex h-full items-center justify-center px-4 text-center text-sm text-[var(--color-danger)]">
+          {globeError}
+        </div>
+      ) : (
+        <Globe
+          ref={globeRef}
+          width={dims.w}
+          height={dims.h}
+          backgroundImageUrl={NIGHT_SKY}
+          globeImageUrl={EARTH_TEXTURE}
+          bumpImageUrl={BUMP_TEXTURE}
+          backgroundColor="rgba(0,0,0,0)"
+          atmosphereColor="#7ec8a3"
+          atmosphereAltitude={0.18}
+          // Subtle surface dots keep each location fixed in 3D while Earth spins
+          pointsData={htmlData}
+          pointLat="lat"
+          pointLng="lng"
+          pointAltitude={0.01}
+          pointRadius={(d) => ((d as PinDatum).selected ? 0.55 : 0.32)}
+          pointColor="color"
+          pointsMerge={false}
+          // Map pins stay tied to lat/lng for the whole spin
+          htmlElementsData={htmlData}
+          htmlLat="lat"
+          htmlLng="lng"
+          htmlAltitude={0.015}
+          htmlTransitionDuration={0}
+          htmlElement={createPinElement}
+          onGlobeReady={handleReady}
+        />
+      )}
     </div>
   )
 }

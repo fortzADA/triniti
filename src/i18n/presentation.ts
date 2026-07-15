@@ -10,6 +10,17 @@ export type PillarCopy = {
   points: { text: string; icon: string }[]
 }
 
+export type BenefitAudience = {
+  id: 'church' | 'community' | 'consulates'
+  title: string
+  lead: string
+  points: string[]
+  icon: string
+  modalTitle: string
+  modalIntro: string
+  modalExamples: string[]
+}
+
 type PresentationCopy = {
   join: string
   openApp: string
@@ -31,6 +42,10 @@ type PresentationCopy = {
   pillarsEyebrow: string
   pillarsTitle: string
   pillarsLead: string
+  benefitsEyebrow: string
+  benefitsTitle: string
+  benefitsLead: string
+  benefits: BenefitAudience[]
   modelEyebrow: string
   modelTitle: string
   modelBody: string
@@ -108,6 +123,81 @@ export const presentationCopy: Record<Lang, PresentationCopy> = {
     pillarsTitle: 'Three pillars. One sacred mission.',
     pillarsLead:
       'Rooted in the Holy Trinity and the rich tradition of the Romanian Orthodox Church, Trinity offers a holistic ministry of presence, compassion, and celebration for Romanians across America.',
+    benefitsEyebrow: 'Benefits',
+    benefitsTitle: 'Why Trinity serves everyone who cares for the diaspora',
+    benefitsLead:
+      'One platform strengthens parish life, everyday community belonging, and the work of consular partners who support Romanians abroad.',
+    benefits: [
+      {
+        id: 'church',
+        title: 'Church',
+        lead:
+          'Parishes gain a living digital home—without losing the pastoral heart of Orthodox life.',
+        icon: '/presentation/ppt-icon-church.png',
+        points: [
+          'Private community for approved members: feed, groups, and pastoral updates in one place',
+          'Public parish portal for discovery, so distant faithful can find and request to join',
+          'Clear roles for priests and admins to welcome, guide, and care for the flock',
+          'A bridge between ancestral tradition and families living far from home churches',
+        ],
+        modalTitle: 'Benefits for the Church',
+        modalIntro:
+          'Trinity helps priests and parish leaders shepherd people who live far from home—with tools that respect Orthodox pastoral care.',
+        modalExamples: [
+          'A priest publishes feast-day guidance once; members in three cities receive it in the parish community.',
+          'A new family finds the public portal, requests to join, and an admin approves them into the private flock.',
+          'Small groups for youth, mothers, or prayer stay organized per parish—without mixing unrelated churches.',
+          'Pastoral announcements, volunteer needs, and urgent help requests stay inside a trusted member circle.',
+          'Parishes keep their own identity online while still belonging to the wider Trinity ministry family.',
+        ],
+      },
+      {
+        id: 'community',
+        title: 'Community',
+        lead:
+          'Families and neighbors find belonging, mutual help, and shared faith wherever they are.',
+        icon: '/presentation/ppt-icon-help.png',
+        points: [
+          'Connection across cities and countries when local parish life feels far away',
+          'Practical pathways for help, mentorship, prayer, and cultural heritage',
+          'A dignified way to give and receive through monthly micro-contribution',
+          'Events and gatherings that renew joy, language, and Orthodox identity together',
+        ],
+        modalTitle: 'Benefits for the Community',
+        modalIntro:
+          'Trinity gives diaspora families a place to belong, ask for help, and stay close to faith and culture—with dignity.',
+        modalExamples: [
+          'A student abroad joins a parish group, finds a mentor, and keeps Romanian-language prayer evenings alive.',
+          'Neighbors share rides to liturgy, babysitting offers, or job tips inside a trusted community feed.',
+          'A family in hardship receives quiet support through community care, not public spectacle.',
+          'Parents find cultural festivals, feast celebrations, and heritage workshops for their children.',
+          'Monthly micro-contribution lets many people share a small gift so help stays steady for those who need it.',
+        ],
+      },
+      {
+        id: 'consulates',
+        title: 'Consulates',
+        lead:
+          'Consular and diaspora partners gain a trusted civic–faith channel to the Romanian community.',
+        icon: '/presentation/ppt-icon-consulate.png',
+        points: [
+          'A structured network for reaching citizens through trusted parish communities',
+          'Better visibility into where Romanians gather and how to share urgent guidance',
+          'Partnership on cultural, educational, and humanitarian outreach with churches',
+          'Support for integration and belonging that complements official consular care',
+        ],
+        modalTitle: 'Benefits for Consulates',
+        modalIntro:
+          'Trinity complements consular service by connecting official care with trusted parish networks across the diaspora.',
+        modalExamples: [
+          'Consular guidance on documents or emergencies can be shared through parish communities already in contact with citizens.',
+          'Partners see where Romanian Orthodox communities gather—helpful for cultural and civic outreach planning.',
+          'Joint charity or heritage events can be coordinated with priests and local parish admins on the ground.',
+          'New arrivals hear about integration support from both consular channels and welcoming parish groups.',
+          'A faith-rooted digital map of communities helps ministers of affairs reach people with dignity and trust.',
+        ],
+      },
+    ],
     modelEyebrow: 'Our model',
     modelTitle: 'Sustainable ministry through monthly micro-contribution',
     modelBody:
@@ -262,6 +352,81 @@ export const presentationCopy: Record<Lang, PresentationCopy> = {
     pillarsTitle: 'Trei piloni. O misiune sfântă.',
     pillarsLead:
       'Înrădăcinată în Sfânta Treime și în tradiția bogată a Bisericii Ortodoxe Române, Trinity oferă o misiune holistă de prezență, compasiune și sărbătoare pentru români din America și din întreaga lume.',
+    benefitsEyebrow: 'Beneficii',
+    benefitsTitle: 'De ce Trinity slujește pe toți cei care îngrijesc diaspora',
+    benefitsLead:
+      'O singură platformă întărește viața parohială, apartenența comunitară de zi cu zi și lucrarea partenerilor consulari care sprijină românii din străinătate.',
+    benefits: [
+      {
+        id: 'church',
+        title: 'Biserica',
+        lead:
+          'Parohiile primesc o casă digitală vie—fără să piardă inima pastorală a vieții ortodoxe.',
+        icon: '/presentation/ppt-icon-church.png',
+        points: [
+          'Comunitate privată pentru membri aprobați: flux, grupuri și vești pastorale într-un singur loc',
+          'Portal public de descoperire, ca credincioșii îndepărtați să găsească și să ceară să se alăture',
+          'Roluri clare pentru preoți și administratori care primesc, călăuzesc și îngrijesc turma',
+          'Punte între tradiția străbună și familiile trăitoare departe de bisericile de acasă',
+        ],
+        modalTitle: 'Beneficii pentru Biserică',
+        modalIntro:
+          'Trinity ajută preoții și liderii de parohie să păstorească oameni departe de casă—cu unelte care respectă grija pastorală ortodoxă.',
+        modalExamples: [
+          'Un preot publică îndrumarea pentru un praznic o singură dată; membri din trei orașe o primesc în comunitatea parohiei.',
+          'O familie nouă găsește portalul public, cere să se alăture, iar un administrator o aprobă în turma privată.',
+          'Grupurile mici pentru tineri, mame sau rugăciune rămân organizate pe parohie—fără amestecarea bisericilor.',
+          'Anunțurile pastorale, nevoile de voluntariat și cererile urgente de ajutor rămân într-un cerc de membri de încredere.',
+          'Parohiile își păstrează identitatea online, rămânând totodată parte din familia mai largă a misiunii Trinity.',
+        ],
+      },
+      {
+        id: 'community',
+        title: 'Comunitatea',
+        lead:
+          'Familiile și vecinii găsesc apartenență, ajutor reciproc și credință împărtășită, oriunde ar fi.',
+        icon: '/presentation/ppt-icon-help.png',
+        points: [
+          'Legături peste orașe și țări când viața de parohie locală se simte departe',
+          'Căi practice pentru ajutor, mentorat, rugăciune și moștenire culturală',
+          'Un fel demn de a dărui și de a primi prin micro-contribuție lunară',
+          'Evenimente și întâlniri care reînnoiesc bucuria, limba și identitatea ortodoxă împreună',
+        ],
+        modalTitle: 'Beneficii pentru Comunitate',
+        modalIntro:
+          'Trinity oferă familiilor din diasporă un loc de apartenență, ajutor și apropiere de credință și cultură—cu demnitate.',
+        modalExamples: [
+          'Un student în străinătate se alătură unui grup de parohie, găsește un mentor și ține vii seriile de rugăciune în limba română.',
+          'Vecinii împart drumuri la Liturghie, oferte de babysitting sau sfaturi de muncă într-un flux comunitar de încredere.',
+          'O familie aflată în greutate primește sprijin liniștit prin grija comunității, nu prin spectacol public.',
+          'Părinții găsesc festivaluri culturale, sărbători și ateliere de moștenire pentru copiii lor.',
+          'Micro-contribuția lunară le permite multora să dăruiască puțin, ca ajutorul pentru cei în nevoie să rămână statornic.',
+        ],
+      },
+      {
+        id: 'consulates',
+        title: 'Consulate',
+        lead:
+          'Partenerii consulari și de diasporă primesc un canal de încredere către comunitatea română.',
+        icon: '/presentation/ppt-icon-consulate.png',
+        points: [
+          'O rețea structurată pentru a ajunge la cetățeni prin comunități de parohie de încredere',
+          'Vizibilitate mai bună asupra locurilor unde se adună românii și a modului de a transmite îndrumări urgente',
+          'Parteneriat la outreach cultural, educațional și umanitar alături de biserici',
+          'Sprijin pentru integrare și apartenență care completează grija consulară oficială',
+        ],
+        modalTitle: 'Beneficii pentru Consulate',
+        modalIntro:
+          'Trinity completează serviciul consular legând grija oficială de rețele de parohie de încredere din diasporă.',
+        modalExamples: [
+          'Îndrumările consulare despre documente sau urgențe pot ajunge prin comunități de parohie deja în legătură cu cetățenii.',
+          'Partenerii văd unde se adună comunitățile ortodoxe române—util pentru planificarea outreach-ului cultural și civic.',
+          'Evenimente comune de caritate sau de moștenire pot fi coordonate cu preoți și administratori locali.',
+          'Noii veniți aud despre sprijinul de integrare atât pe canale consulare, cât și în grupuri de parohie primitoare.',
+          'O hartă digitală a comunităților, înrădăcinată în credință, ajută Ministerul Afacerilor Externe să ajungă la oameni cu demnitate și încredere.',
+        ],
+      },
+    ],
     modelEyebrow: 'Modelul nostru',
     modelTitle: 'Misiune durabilă prin micro-contribuție lunară',
     modelBody:
