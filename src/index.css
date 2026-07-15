@@ -65,33 +65,6 @@
   cursor: grabbing;
 }
 
-.trinity-map-pin {
-  background: transparent !important;
-  border: none !important;
-}
-
-.leaflet-container {
-  background: #0f241c;
-  font: inherit;
-}
-
-.leaflet-popup-content-wrapper {
-  background: #132820;
-  color: #e8f0eb;
-  border-radius: 8px;
-  border: 1px solid #d4af37;
-}
-
-.leaflet-popup-tip {
-  background: #132820;
-}
-
-.leaflet-popup-content {
-  margin: 10px 12px;
-  font-size: 13px;
-  line-height: 1.4;
-}
-
 .pres-cta {
   animation: pres-cta-glow 2.8s ease-in-out infinite;
 }
